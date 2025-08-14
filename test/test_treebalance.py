@@ -5,10 +5,47 @@ import unittest
 import pandas as pd
 
 from treeshape.treeshape import TreeShape
-import treeshape.indexlists as indexlists
+
+treebalance_indices = [
+        "area_per_pair_index",
+        "average_leaf_depth",
+        "average_vertex_depth",
+        "B_1_index",
+        "B_2_index",
+        "cherry_index",
+        "colless_index",
+        "corrected_colless_index",
+        "quadratic_colless_index",
+        # "colijn_plazotta_rank",
+        "I_2_index",
+        # "furnas_rank",
+        "mean_I",
+        "total_I",
+        "mean_I_prime",
+        "total_I_prime",
+        "mean_I_w",
+        "total_I_w",
+        "maxdiff_widths",
+        "modified_maxdiff_widths",
+        "maximum_depth",
+        "maximum_width",
+        "modified_cherry_index",
+        "max_width_over_max_depth",
+        "rogers_j_index",
+        "rooted_quartet_index",
+        "sackin_index",
+        "s_shape",
+        "stairs1",
+        "stairs2",
+        "symmetry_nodes_index",
+        "total_cophenetic_index",
+        "total_internal_path_length",
+        "total_path_length",
+        "variance_of_leaves_depths",
+        "d_index"]
 
 class TestMetrics(unittest.TestCase):
-    ref_dir = "../results/treebalance/metrics/evonaps_dna"
+    ref_dir = "../reference_results/treebalance/indices/evonaps_dna"
     tree_dir = "../data/evonaps_dna/trees/rooted"
     expected = {}
     for tree_name in os.listdir(tree_dir):
@@ -31,7 +68,7 @@ class TestMetrics(unittest.TestCase):
             tree = Tree(os.path.join(self.tree_dir, test_tree_name))
             tb_b = TreeShape(tree, "BINARY")
             tb_a = TreeShape(tree, "ARBITRARY")
-            for index_name in indexlists.treebalance_indices:
+            for index_name in treebalance_indices:
                 print(index_name)
                 try:
                     self.assertAlmostEqual(tb_b.absolute(index_name), self.expected[test_tree_name][index_name])

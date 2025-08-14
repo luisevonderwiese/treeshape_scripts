@@ -211,28 +211,28 @@ for (tree_name in tree_names) {
         end.time <- Sys.time()
         times <- c(times, end.time - start.time)
 
-	if (!file.exists("../results/")){
-        	dir.create(file.path("../results/"))
+	if (!file.exists("../reference_results/")){
+        	dir.create(file.path("../reference_results/"))
 	}
-	if (!file.exists("../results/treestats/")){
-                dir.create(file.path("../results/treestats/"))
+	if (!file.exists("../reference_results/treestats/")){
+                dir.create(file.path("../reference_results/treestats/"))
         }
-	if (!file.exists("../results/treestats/metrics/")){
-                dir.create(file.path("../results/treestats/metrics/"))
+	if (!file.exists("../reference_results/treestats/indices/")){
+                dir.create(file.path("../reference_results/treestats/indices/"))
         }
-	if (!file.exists("../results/treestats/benchmark/")){
-                dir.create(file.path("../results/treestats/benchmark/"))
+	if (!file.exists("../reference_results/treestats/benchmark/")){
+                dir.create(file.path("../reference_results/treestats/benchmark/"))
         }
-        if (!file.exists("../results/treestats/metrics/evonaps_dna/")){
-                dir.create(file.path("../results/treestats/metrics/evonaps_dna/"))
+        if (!file.exists("../reference_results/treestats/indices/evonaps_dna/")){
+                dir.create(file.path("../reference_results/treestats/indices/evonaps_dna/"))
         }
-        if (!file.exists("../results/treestats/benchmark/evonaps_dna/")){
-                dir.create(file.path("../results/treestats/benchmark/evonaps_dna/"))
+        if (!file.exists("../reference_results/treestats/benchmark/evonaps_dna/")){
+                dir.create(file.path("../reference_results/treestats/benchmark/evonaps_dna/"))
         }
 
 	data <- data.frame(names,results)
-	write.csv(data,	paste("../results/treestats/metrics/evonaps_dna/", tree_name, ".csv", sep=""))
+	write.csv(data,	paste("../reference_results/treestats/indices/evonaps_dna/", tree_name, ".csv", sep=""))
 	data <- data.frame(names,times)
-        write.csv(data, paste("../results/treestats/benchmark/evonaps_dna/", tree_name, ".csv", sep=""))
+        write.csv(data, paste("../reference_results/treestats/benchmark/evonaps_dna/", tree_name, ".csv", sep=""))
 
 }

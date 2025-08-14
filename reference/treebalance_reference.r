@@ -1,4 +1,4 @@
-tree_dir = "../data/evonaps_dna/trees/rooted"
+tree_dir = "../data/evonaps_dna/trees/rooted/"
 tree_names <- list.files(path=tree_dir, pattern="*.tree", full.names=FALSE, recursive=FALSE)
 
 for (tree_name in tree_names) {
@@ -224,29 +224,29 @@ for (tree_name in tree_names) {
         times <- c(times, end.time - start.time)
 	names <- c(names, "d_index")
 	
-        if (!file.exists("../results/")){
-                dir.create(file.path("../results/"))
+        if (!file.exists("../reference_results/")){
+                dir.create(file.path("../reference_results/"))
         }
-        if (!file.exists("../results/treebalance/")){
-                dir.create(file.path("../results/treebalance/"))
+        if (!file.exists("../reference_results/treebalance/")){
+                dir.create(file.path("../reference_results/treebalance/"))
         }
-        if (!file.exists("../results/treebalance/metrics/")){
-                dir.create(file.path("../results/treebalance/metrics/"))
+        if (!file.exists("../reference_results/treebalance/indices/")){
+                dir.create(file.path("../reference_results/treebalance/indices/"))
         }
-        if (!file.exists("../results/treebalance/benchmark/")){
-                dir.create(file.path("../results/treebalance/benchmark/"))
+        if (!file.exists("../reference_results/treebalance/benchmark/")){
+                dir.create(file.path("../reference_results/treebalance/benchmark/"))
         }
-        if (!file.exists("../results/treebalance/metrics/evonaps_dna/")){
-                dir.create(file.path("../results/treebalance/metrics/evonaps_dna/"))
+        if (!file.exists("../reference_results/treebalance/indices/evonaps_dna/")){
+                dir.create(file.path("../reference_results/treebalance/indices/evonaps_dna/"))
         }
-        if (!file.exists("../results/treebalance/benchmark/evonaps_dna/")){
-                dir.create(file.path("../results/treebalance/benchmark/evonaps_dna/"))
+        if (!file.exists("../reference_results/treebalance/benchmark/evonaps_dna/")){
+                dir.create(file.path("../reference_results/treebalance/benchmark/evonaps_dna/"))
         }
 
         data <- data.frame(names,results)
-        write.csv(data, paste("../results/treebalance/metrics/evonaps_dna/", tree_name, ".csv", sep=""))
+        write.csv(data, paste("../reference_results/treebalance/indices/evonaps_dna/", tree_name, ".csv", sep=""))
         data <- data.frame(names,times)
-        write.csv(data, paste("../results/treebalance/benchmark/evonaps_dna/", tree_name, ".csv", sep=""))
+        write.csv(data, paste("../reference_results/treebalance/benchmark/evonaps_dna/", tree_name, ".csv", sep=""))
 
 
 }

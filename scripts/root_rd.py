@@ -14,10 +14,9 @@ def run_root_digger(msa_path, tree_path, prefix):
 
 def root_trees(base_dir):
     msa_dir = os.path.join(base_dir, "msa")
-    results_dir = os.path.join(base_dir, "results")
     unrooted_trees_dir = os.path.join(base_dir, "trees/unrooted")
-    rooted_trees_dir = os.path.join(base_dir, "trees/rooted")
-    rd_dir = os.path.join(results_dir, "rd")
+    rooted_trees_dir = os.path.join(base_dir, "trees/rooted_rd")
+    rd_dir = os.path.join(base_dir, "rd")
     for d in [rooted_trees_dir, rd_dir]:
         if not os.path.isdir(d):
             os.makedirs(d)

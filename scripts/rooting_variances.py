@@ -120,13 +120,16 @@ GROUPS_ROOTING = [
 
 
 
-def evaluate_indices(base_dir):
+def evaluate_indices(base_dir, relative = True):
+    print("Evaluating indices ...")
     unrooted_trees_dir = os.path.join(base_dir, "trees/unrooted")
-    results_dir = os.path.join(base_dir, "rooting_variances_relative")
+    if relative:
+        results_dir = os.path.join(base_dir, "rooting_variances_relative")
+    else:
+        results_dir = os.path.join(base_dir, "rooting_variances")
     if not os.path.isdir(results_dir):
         os.makedirs(results_dir)
     for tree_name in os.listdir(unrooted_trees_dir):
-        print(tree_name)
         unrooted_tree_path = os.path.join(unrooted_trees_dir, tree_name)
         results_path = os.path.join(results_dir, tree_name + ".tsv")
         if os.path.isfile(results_path):
@@ -141,7 +144,10 @@ def evaluate_indices(base_dir):
             nwk = tree.write()
             rooted_tree = Tree(nwk)
             ts = TreeShape(rooted_tree, "BINARY")
-            results = ts.all_relative()
+            if relative:
+                results = ts.all_relative()
+            else:
+                results = ts.all_relative()
             if node.is_leaf():
                 root_type = "external"
             else:
@@ -152,10 +158,10 @@ def evaluate_indices(base_dir):
                 outfile.write("\n")
 
 def tree_sizes(base_dir):
+    print("Determining tree sizes...")
     unrooted_trees_dir = os.path.join(base_dir, "trees/unrooted")
     sizes = []
     for tree_name in os.listdir(unrooted_trees_dir):
-        print(tree_name)
         unrooted_tree_path = os.path.join(unrooted_trees_dir, tree_name)
         tree = Tree(unrooted_tree_path)
         sizes.append(len(tree))
@@ -164,11 +170,12 @@ def tree_sizes(base_dir):
     plt.clf()
     plt.hist(sizes, bins=logbins)
     plt.xscale("log")
-    plt.savefig("tree_sizes.png")
+    plt.savefig("../plots/tree_sizes.png")
 
 
 
 def determine_max_min(base_dir):
+    print("Determining minimum and maximum values...")
     results_dir = os.path.join(base_dir, "rooting_variances")
     mins = {}
     maxs = {}
@@ -184,9 +191,13 @@ def determine_max_min(base_dir):
     for index in INDICES:
         results.append([index, mins[index], maxs[index]])
     print(tabulate(results, headers=["index", "min", "max"], tablefmt="pipe", floatfmt=".6f"))
+    df = pd.DataFrame(results, columns=["index", "min", "max"])
+    df.to_csv(os.path.join(base_dir, "min_max.tsv"), sep = "\t")
+
 
 
 def determine_variances(base_dir):
+    print("Determining rerooting variances...")
     results_dir = os.path.join(base_dir, "rooting_variances_relative")
     variances = {}
     variances_internal = {}
@@ -226,32 +237,12 @@ def determine_variances(base_dir):
              for index in INDICES]
     headers = ["index", "var", "var_internal", "var_external", "var_means"]
     print(tabulate(table, headers = headers, tablefmt="pipe", floatfmt=".6f"))
-    with open("variances.txt", "w+") as outfile:
-        outfile.write(tabulate(table, headers = headers, tablefmt="pipe", floatfmt=".6f"))
-
-    with open("variances.tsv", "w+") as outfile:
-        outfile.write(tabulate(table, headers = headers, tablefmt="tsv", floatfmt=".6f"))
+    df = pd.DataFrame(table, columns=headers)
+    df.to_csv(os.path.join(base_dir, "variances_rerooting.tsv"), sep = "\t")
 
     
 def determine_database_variances(base_dir):
-    results_dir = os.path.join(base_dir, "rooting_variances_relative")
-    all_values = {}
-    for index in INDICES:
-        all_values[index] = []
-    for results_name in os.listdir(results_dir):
-        df = pd.read_csv(os.path.join(results_dir, results_name), sep= "\t")
-        for index in INDICES:
-            all_values[index] += list(df[index])
-    table = [[index, np.var(all_values[index])] for index in INDICES]
-    headers = ["index", "database_var"]
-    print(tabulate(table, headers = headers, tablefmt="pipe", floatfmt=".6f"))
-    with open("variances_database.txt", "w+") as outfile:
-        outfile.write(tabulate(table, headers = headers, tablefmt="pipe", floatfmt=".6f"))
-
-    with open("variances_database.tsv", "w+") as outfile:
-        outfile.write(tabulate(table, headers = headers, tablefmt="tsv", floatfmt=".6f"))
-
-def determine_alternative_database_variances(base_dir):
+    print("Determining database variances...")
     results_dir = os.path.join(base_dir, "rooting_variances_relative")
     all_values = {}
     for index in INDICES:
@@ -264,31 +255,14 @@ def determine_alternative_database_variances(base_dir):
     table = [[index, np.nanvar(all_values[index])] for index in INDICES]
     headers = ["index", "database_var"]
     print(tabulate(table, headers = headers, tablefmt="pipe", floatfmt=".6f"))
-    with open("variances_database_alternative.txt", "w+") as outfile:
-        outfile.write(tabulate(table, headers = headers, tablefmt="pipe", floatfmt=".6f"))
-
-    with open("variances_database_alternative.tsv", "w+") as outfile:
-        outfile.write(tabulate(table, headers = headers, tablefmt="tsv", floatfmt=".6f"))
+    df = pd.DataFrame(table, columns=headers)
+    df.to_csv(os.path.join(base_dir, "variances_database.tsv"), sep = "\t")
 
 
-def tidy_up():
-    with open("variances_database_alternative.tsv", "r") as infile:
-        lines = infile.readlines()
-    data = []
-    for line in lines:
-        line = line.replace("\n", "")
-        line = line.replace(" ", "")
-        line =  line.split("\t")
-        data.append(line)
-    df = pd.DataFrame(data[1:], columns = data[0])
-    print(df)
-    df.to_csv("variances_database_alternative_new.tsv", sep = "\t")
-
-def determine_relative_variances():
-    rerooting_df = pd.read_csv("variances_new.tsv", sep = "\t")
-    database_df = pd.read_csv("variances_database_alternative_new.tsv", sep = "\t")
-    print(database_df)
-    print(rerooting_df)
+def determine_relative_variances(base_dir):
+    print("Determining relative re-rooting variances...")
+    rerooting_df = pd.read_csv(os.path.join(base_dir, "variances_rerooting.tsv"), sep = "\t")
+    database_df = pd.read_csv(os.path.join(base_dir, "variances_database.tsv"), sep = "\t")
     results = []
     for index in INDICES:
         database_var = database_df[database_df["index"] == index]["database_var"].iloc[0]
@@ -303,12 +277,17 @@ def determine_relative_variances():
                         rerooting_var_external / database_var])
     headers = ["index", "relative var", "relative var int", "relative var ext"]
     print(tabulate(results, headers = headers, tablefmt="pipe", floatfmt=".6f"))
+    df = pd.DataFrame(table, columns=headers)
+    df.to_csv(os.path.join(base_dir, "variances_rerooting_relative.tsv"), sep = "\t")
+
 
 
 def plot_relative_variances(base_dir):
+    print("Plotting relative rerooting variances...")
     results_dir = os.path.join(base_dir, "rooting_variances_relative")
-    rerooting_df = pd.read_csv("variances_new.tsv", sep = "\t")
-    database_df = pd.read_csv("variances_database_alternative_new.tsv", sep = "\t")
+
+    database_df = pd.read_csv(os.path.join(base_dir, "variances_database.tsv"), sep = "\t")
+    
     selected_indices = ["sackin_index", "maximum_depth", "cherry_index", "rogers_j_index", "root_imbalance", "B_2_index"]
     database_vars = {}
     for index in selected_indices:
@@ -367,10 +346,11 @@ def plot_relative_variances(base_dir):
         plt.xlabel("index")
         plt.ylabel(mode)
  
-        plt.savefig(mode + ".png", bbox_inches='tight')
+        plt.savefig(os.path.join("../plots", mode + ".png"), bbox_inches='tight')
 
 
-def determine_correlations(base_dir):
+def determine_rerooting_correlations(base_dir):
+    print("Plotting re-rooting correlations...")
     index_list = GROUPS_ROOTING
     list_name = "groups_rooting"
     results_dir = os.path.join(base_dir, "rooting_variances")
@@ -399,11 +379,12 @@ def determine_correlations(base_dir):
     fig.colorbar(im)
     ax.set_xticks(range(len(index_list)), labels=index_list, rotation=45, ha="right", rotation_mode="anchor")
     ax.set_yticks(range(len(index_list)), labels=index_list)
-    plt.savefig("heatmap_" + list_name + ".png")
+    plt.savefig("../plots/heatmap_rerooting.png")
 
-def determine_mean_correlations(base_dir):
-    index_list = GROUPS_STRICT
-    list_name = "groups_strict"
+def determine_database_correlations(base_dir):
+    print("Plotting database correlations...")
+    index_list = GROUPS
+    list_name = "groups"
     results_dir = os.path.join(base_dir, "rooting_variances")
     means = {}
     for index in index_list:
@@ -428,19 +409,20 @@ def determine_mean_correlations(base_dir):
     fig.colorbar(im)
     ax.set_xticks(range(len(index_list)), labels=index_list, rotation=45, ha="right", rotation_mode="anchor")
     ax.set_yticks(range(len(index_list)), labels=index_list)
-    plt.savefig("heatmap_means_" + list_name + ".png")
+    plt.savefig("../plots/heatmap_database.png")
 
 
-#tree_sizes("../data/evonaps_dna")
-#evaluate_indices("../data/evonaps_dna")
+if not os.path.isdir("../plots"):
+    os.makedirs("../plots")
+#evaluate_indices("../data/evonaps_dna/", True)
+#evaluate_indices("../data/evonaps_dna/", False)
+tree_sizes("../data/evonaps_dna")
+determine_max_min("../data/evonaps_dna")
+determine_database_variances("../data/evonaps_dna")
 #determine_variances("../data/evonaps_dna")
-#determine_database_variances("../data/evonaps_dna")
-#determine_alternative_database_variances("../data/evonaps_dna")
-#tidy_up()
-#determine_relative_variances()
-#determine_max_min("../data/evonaps_dna")
+#determine_relative_variances("../data/evonaps_dna")
 
 plot_relative_variances("../data/evonaps_dna")
-#determine_correlations("../data/evonaps_dna")
-#determine_mean_correlations("../data/evonaps_dna")
+determine_rerooting_correlations("../data/evonaps_dna")
+determine_database_correlations("../data/evonaps_dna")
 
