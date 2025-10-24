@@ -1,238 +1,276 @@
-tree_dir = "../data/evonaps_dna/trees/rooted/"
-tree_names <- list.files(path=tree_dir, pattern="*.tree", full.names=FALSE, recursive=FALSE)
+set = "evonaps_dna"
+outdir = paste("../data/", set, "/treestats/", sep = "")
+if (!file.exists(outdir)){
+	dir.create(file.path(outdir))
+}
+
+super_tree_dir = paste("../data/", set, "/trees/rooted/", sep = "")
+tree_names <- list.dirs(path=super_tree_dir, full.names=FALSE, recursive=FALSE)
 for (tree_name in tree_names) {
 	print(tree_name)
-	tree <- ape::read.tree(paste(tree_dir, tree_name, sep=""))
-	results <- c()
-	names <- c()
-	times <- c()
+	tree_dir = paste(super_tree_dir, tree_name, sep = "")
+	big_results_df <- data.frame()
+	big_times_df <- data.frame()
+	root_names = list.files(path=tree_dir, pattern="*.tree", full.names=FALSE, recursive=FALSE)
+	for (root_name in root_names) {
+		sub <- strsplit(root_name, ".", fixed = TRUE)[[1]][1]
+		parts <- strsplit(sub, "_")[[1]]
+		root_type <- parts[1]
+		root <- parts[2]
+		tree <- ape::read.tree(paste(tree_dir, root_name, sep="/"))
+		results_df <- data.frame(root = c(root), root_type = c(root_type))
+		times_df <- data.frame(root = c(root), root_type = c(root_type))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::area_per_pair(tree))
-	names <- c(names, "area_per_pair_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::area_per_pair(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, area_per_pair_index = c(res))
+                times_df <- cbind(times_df, area_per_pair_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::average_leaf_depth(tree))
-	names <- c(names, "average_leaf_depth")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::average_leaf_depth(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, average_leaf_depth = c(res))
+                times_df <- cbind(times_df, average_leaf_depth = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::avg_vert_depth(tree))
-	names <- c(names, "average_vertex_depth")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::avg_vert_depth(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, average_vertex_depth = c(res))
+                times_df <- cbind(times_df, average_vertex_depth = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::b1(tree))
-	names <- c(names, "B_1_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::b1(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, B_1_index = c(res))
+                times_df <- cbind(times_df, B_1_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::b2(tree))
-	names <- c(names, "B_2_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::b2(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, B_2_index = c(res))
+                times_df <- cbind(times_df, B_2_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::blum(tree))
-	names <- c(names, "s_shape")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::blum(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, s_shape = c(res))
+                times_df <- cbind(times_df, s_shape = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::cherries(tree))
-	names <- c(names, "cherry_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::cherries(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, cherry_index = c(res))
+                times_df <- cbind(times_df, cherry_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::colless(tree))
-	names <- c(names, "colless_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::colless(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, colless_index = c(res))
+                times_df <- cbind(times_df, colless_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::colless_corr(tree))
-	names <- c(names, "corrected_colless_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::colless_corr(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, corrected_colless_index = c(res))
+                times_df <- cbind(times_df, corrected_colless_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::colless_quad(tree))
-	names <- c(names, "quadratic_colless_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::colless_quad(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, quadratic_colless_index = c(res))
+                times_df <- cbind(times_df, quadratic_colless_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::diameter(tree))
-	names <- c(names, "diameter")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::diameter(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, diameter = c(res))
+                times_df <- cbind(times_df, diameter = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::ew_colless(tree))
-	names <- c(names, "I_2_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::ew_colless(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, I_2_index = c(res))
+                times_df <- cbind(times_df, I_2_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::mean_i(tree))
-	names <- c(names, "mean_I_prime")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::mean_i(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, mean_I_prime = c(res))
+                times_df <- cbind(times_df, mean_I_prime = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::max_del_width(tree))
-	names <- c(names, "modified_maxdiff_widths")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::max_del_width(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, modified_maxdiff_widths = c(res))
+                times_df <- cbind(times_df, modified_maxdiff_widths = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::max_depth(tree))
-	names <- c(names, "maximum_depth")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
-	
-	start.time <- Sys.time()
-	results <- c(results, treestats::max_width(tree))
-	names <- c(names, "maximum_width")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::max_depth(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, maximum_depth = c(res))
+                times_df <- cbind(times_df, maximum_depth = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::mw_over_md(tree))
-	names <- c(names, "max_width_over_max_depth")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::max_width(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, maximum_width = c(res))
+                times_df <- cbind(times_df, maximum_width = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::rogers(tree))
-	names <- c(names, "rogers_j_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::mw_over_md(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, max_width_over_max_depth = c(res))
+                times_df <- cbind(times_df, max_width_over_max_depth = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::root_imbalance(tree))
-	names <- c(names, "root_imbalance")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::rogers(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, rogers_j_index = c(res))
+                times_df <- cbind(times_df, rogers_j_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::rquartet(tree))
-	names <- c(names, "rooted_quartet_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::root_imbalance(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, root_imbalance = c(res))
+                times_df <- cbind(times_df, root_imbalance = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::sackin(tree))
-	names <- c(names, "sackin_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::rquartet(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, rooted_quartet_index = c(res))
+                times_df <- cbind(times_df, rooted_quartet_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::stairs(tree))
-	names <- c(names, "stairs1")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::sackin(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, sackin_index = c(res))
+                times_df <- cbind(times_df, sackin_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::stairs2(tree))
-	names <- c(names, "stairs2")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
-	
-	start.time <- Sys.time()
-	results <- c(results, treestats::sym_nodes(tree))
-	names <- c(names, "symmetry_nodes_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::stairs(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, stairs1 = c(res))
+                times_df <- cbind(times_df, stairs1 = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::tot_coph(tree))
-	names <- c(names, "total_cophenetic_index")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::stairs2(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, stairs2 = c(res))
+                times_df <- cbind(times_df, stairs2 = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::tot_internal_path(tree))
-	names <- c(names, "total_internal_path_length")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::sym_nodes(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, symmetry_nodes_index = c(res))
+                times_df <- cbind(times_df, symmetry_nodes_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::tot_path_length(tree))
-	names <- c(names, "total_path_length")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::tot_coph(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, total_cophenetic_index = c(res))
+                times_df <- cbind(times_df, total_cophenetic_index = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::treeness(tree))
-	names <- c(names, "treeness")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::tot_internal_path(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, total_internal_path_length = c(res))
+                times_df <- cbind(times_df, total_internal_path_length = c(time))
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::var_leaf_depth(tree))
-	names <- c(names, "variance_of_leaves_depths")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::tot_path_length(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, total_path_length = c(res))
+                times_df <- cbind(times_df, total_path_length = c(time))
 
-	start.time <- Sys.time()
-        results <- c(results, treestats::max_ladder(tree))
-        names <- c(names, "ladder_length")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::var_leaf_depth(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, variance_of_leaves_depths = c(res))
+                times_df <- cbind(times_df, variance_of_leaves_depths = c(time))
 
-	start.time <- Sys.time()
-        results <- c(results, treestats::ILnumber(tree))
-        names <- c(names, "IL_number")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::max_ladder(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, ladder_length = c(res))
+                times_df <- cbind(times_df, ladder_length = c(time))
 
-	start.time <- Sys.time()
-        results <- c(results, treestats::pitchforks(tree))
-        names <- c(names, "pitchforks")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::ILnumber(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, IL_number = c(res))
+                times_df <- cbind(times_df, IL_number = c(time))
 
-	start.time <- Sys.time()
-        results <- c(results, treestats::four_caterpillars(tree))
-        names <- c(names, "four_prong")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::pitchforks(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, pitchforks = c(res))
+                times_df <- cbind(times_df, pitchforks = c(time))
 
-	start.time <- Sys.time()
-        results <- c(results, treestats::double_cherries(tree))
-        names <- c(names, "double_cherries")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+                start.time <- Sys.time()
+                res <- treestats::four_prong(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, four_caterpillars = c(res))
+                times_df <- cbind(times_df, four_caterpillars = c(time))
 
-	if (!file.exists("../reference_results/")){
-        	dir.create(file.path("../reference_results/"))
+                start.time <- Sys.time()
+                res <- treestats::double_cherries(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, double_cherries = c(res))
+                times_df <- cbind(times_df, double_cherries = c(time))
+
+                start.time <- Sys.time()
+                res <- treestats::wiener(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, wiener_index = c(res))
+                times_df <- cbind(times_df, wiener_index = c(time))
+
+                start.time <- Sys.time()
+                res <- treestats::max_betweenness(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, maximum_bcent = c(res))
+                times_df <- cbind(times_df, maximum_bcent = c(time))
+
+		big_results_df <- rbind(big_results_df, results_df)
+		big_times_df <- rbind(big_times_df, times_df)
+
 	}
-	if (!file.exists("../reference_results/treestats/")){
-                dir.create(file.path("../reference_results/treestats/"))
-        }
-	if (!file.exists("../reference_results/treestats/indices/")){
-                dir.create(file.path("../reference_results/treestats/indices/"))
-        }
-	if (!file.exists("../reference_results/treestats/benchmark/")){
-                dir.create(file.path("../reference_results/treestats/benchmark/"))
-        }
-        if (!file.exists("../reference_results/treestats/indices/evonaps_dna/")){
-                dir.create(file.path("../reference_results/treestats/indices/evonaps_dna/"))
-        }
-        if (!file.exists("../reference_results/treestats/benchmark/evonaps_dna/")){
-                dir.create(file.path("../reference_results/treestats/benchmark/evonaps_dna/"))
-        }
-
-	data <- data.frame(names,results)
-	write.csv(data,	paste("../reference_results/treestats/indices/evonaps_dna/", tree_name, ".csv", sep=""))
-	data <- data.frame(names,times)
-        write.csv(data, paste("../reference_results/treestats/benchmark/evonaps_dna/", tree_name, ".csv", sep=""))
-
+        
+	write.table(big_results_df, file=paste(outdir, tree_name, "_absolute.tsv", sep=""), quote=FALSE, sep='\t', col.names = NA)
+	write.table(big_times_df, file=paste(outdir, tree_name, "_times.tsv", sep=""), quote=FALSE, sep='\t', col.names = NA)
 }

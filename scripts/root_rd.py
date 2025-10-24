@@ -7,7 +7,7 @@ def run_root_digger(msa_path, tree_path, prefix):
     command += " --msa " + msa_path
     command += " --tree " + tree_path
     command += " --prefix " + prefix
-    command += " --threads auto"
+    command += " --threads auto --exhaustive"
     print(command)
     os.system(command)
 
