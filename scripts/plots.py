@@ -120,25 +120,25 @@ GROUPS_ROOTING = [
 
 
 
-def plot_tree_sizes(base_dir):
-    sizes = pd.read_csv(os.path.join(base_dir, "tree_sizes.tsv"), sep = "\t")["num_tips"] 
-    plots_dir = os.path.join(base_dir, "plots")
-    if not os.path.isdir(plots_dir):
-        os.makedirs(plots_dir)
+def plot_tree_sizes(base_dirs):
+    for base_dir in base_dirs:
+        sizes = pd.read_csv(os.path.join(base_dir, "tree_sizes.tsv"), sep = "\t")["num_tips"] 
+        plots_dir = os.path.join(base_dir, "plots")
+        if not os.path.isdir(plots_dir):
+            os.makedirs(plots_dir)
 
-    hist, bins, _ = plt.hist(sizes, bins=30)
-    logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
-    plt.clf()
-    plt.hist(sizes, bins=logbins)
-    plt.xscale("log")
-    plt.savefig(os.path.join(plots_dir, "tree_sizes.png"))
-    plt.clf()
+        hist, bins, _ = plt.hist(sizes, bins=30)
+        logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
+        plt.clf()
+        plt.hist(sizes, bins=logbins)
+        plt.xscale("log")
+        plt.savefig(os.path.join(plots_dir, "tree_sizes.png"))
+        plt.clf()
 
 
 
-def plot_variances(base_dir):
-    variances_dir = os.path.join(base_dir, "rooting_variances")
-    plots_dir = os.path.join(base_dir, "plots", "rooting_variances")
+def plot_variances(base_dirs):
+    plots_dir = "../data/general_plots/rooting_variances"
     if not os.path.isdir(plots_dir):
         os.makedirs(plots_dir)
 
@@ -151,12 +151,14 @@ def plot_variances(base_dir):
         for index in selected_indices:
             results[mode][index] = []
     
-    for tree_name in util.unrooted_tree_names(base_dir):
-        df = pd.read_csv(os.path.join(variances_dir, tree_name + ".tsv"), sep= "\t")
-        for index in selected_indices:
-            sub_df = df[df["index"] == index].iloc[0]
-            for mode in modes:
-                results[mode][index].append(sub_df[mode])
+    for base_dir in base_dirs:
+        variances_dir = os.path.join(base_dir, "rooting_variances")
+        for tree_name in util.unrooted_tree_names(base_dir):
+            df = pd.read_csv(os.path.join(variances_dir, tree_name + ".tsv"), sep= "\t")
+            for index in selected_indices:
+                sub_df = df[df["index"] == index].iloc[0]
+                for mode in modes:
+                    results[mode][index].append(sub_df[mode])
     
     for mode in modes:
         data = []
@@ -186,15 +188,15 @@ def plot_variances(base_dir):
         plt.clf()
 
 
-def plot_correlations(base_dir, corr_type, index_list, list_name):
+def plot_correlations(base_dirs, corr_type, index_list, list_name):
     index_list = GROUPS
     list_name = "groups"
 
-    plots_dir = os.path.join(base_dir, "plots", "correlations")
+    plots_dir = "../data/general_plots/correlations"
     if not os.path.isdir(plots_dir):
         os.makedirs(plots_dir)
 
-    df = pd.read_csv(os.path.join(base_dir, corr_type + "_correlations.tsv"), sep = "\t")
+    df = pd.read_csv(os.path.join("../data/general_output/", corr_type + "_correlations.tsv"), sep = "\t")
     heatmap = []
     for i, index1 in enumerate(index_list):
         heatmap.append([])
@@ -211,8 +213,9 @@ def plot_correlations(base_dir, corr_type, index_list, list_name):
     plt.clf()
 
 
-plot_tree_sizes("../data/evonaps_dna")
-plot_variances("../data/evonaps_dna")
-plot_correlations("../data/evonaps_dna", "database", GROUPS, "groups")
-plot_correlations("../data/evonaps_dna", "rerooting", GROUPS_ROOTING, "groups_rooting")
+base_dirs = ["../data/evonaps_dna"]
+plot_tree_sizes(base_dirs)
+plot_variances(base_dirs)
+plot_correlations(base_dirs, "database", GROUPS, "groups")
+plot_correlations(base_dirs, "rerooting", GROUPS_ROOTING, "groups_rooting")
 
