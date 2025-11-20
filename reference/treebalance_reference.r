@@ -77,12 +77,12 @@ for (tree_name in tree_names) {
                 results_df <- cbind(results_df, quadratic_colless_index = c(res))
                 times_df <- cbind(times_df, quadratic_colless_index = c(time))
 
-                # start.time <- Sys.time()
-                # res <- treebalance::colPlaLab(tree)
-                # end.time <- Sys.time()
-                # time <- difftime(end.time, start.time, units = "secs")[[1]]
-                # results_df <- cbind(results_df, colijn_plazotte_rank = c(res))
-                # times_df <- cbind(times_df, colijn_plazotte_rank = c(time))
+                start.time <- Sys.time()
+                res <- treebalance::colPlaLab(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, colijn_plazotta_rank = c(res))
+                times_df <- cbind(times_df, colijn_plazotta_rank = c(time))
 
                 start.time <- Sys.time()
                 res <- treebalance::ewCollessI(tree)
@@ -91,12 +91,12 @@ for (tree_name in tree_names) {
                 results_df <- cbind(results_df, I_2_index = c(res))
                 times_df <- cbind(times_df, I_2_index = c(time))
 
-                # start.time <- Sys.time()
-                # res <- treebalance::furnasI(tree)
-                # end.time <- Sys.time()
-                # time <- difftime(end.time, start.time, units = "secs")[[1]]
-                # results_df <- cbind(results_df, furnas_rank = c(res))
-                # times_df <- cbind(times_df, furnas_rank = c(time))
+                start.time <- Sys.time()
+                res <- treebalance::furnasI(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, furnas_rank = c(res))
+                times_df <- cbind(times_df, furnas_rank = c(time))
 
                 start.time <- Sys.time()
                 res <- treebalance::IbasedI(tree, method = "mean")

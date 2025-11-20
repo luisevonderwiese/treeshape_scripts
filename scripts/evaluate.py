@@ -45,6 +45,7 @@ def evaluate_indices(base_dir):
             treeshapy_util.precompute_nodes_below(rooted_tree)
             treeshapy_util.precompute_farness(rooted_tree)
             treeshapy_util.precompute_bcent(rooted_tree)
+            treeshapy_util.precompute_ladder_lengths(rooted_tree)
             end = time.time()
             precomputation_time = end - start
 
@@ -119,7 +120,7 @@ def evaluate_indices_no_precomp(base_dir):
                 outfile.write("\n")
 
 
-#evaluate_indices("../data/evonaps_dna")
+evaluate_indices("../data/evonaps_dna")
 evaluate_indices_no_precomp("../data/evonaps_dna")
 #evaluate_indices("../data/evonaps_aa")
 #evaluate_indices("../data/grove")

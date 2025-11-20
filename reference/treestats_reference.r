@@ -253,11 +253,32 @@ for (tree_name in tree_names) {
                 times_df <- cbind(times_df, double_cherries = c(time))
 
                 start.time <- Sys.time()
-                res <- treestats::wiener(tree)
+                res <- treestats::wiener(tree, weight = FALSE)
                 end.time <- Sys.time()
                 time <- difftime(end.time, start.time, units = "secs")[[1]]
                 results_df <- cbind(results_df, wiener_index = c(res))
                 times_df <- cbind(times_df, wiener_index = c(time))
+
+                start.time <- Sys.time()
+                res <- treestats::j_one(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, j1 = c(res))
+                times_df <- cbind(times_df, j1 = c(time))
+                
+		start.time <- Sys.time()
+                res <- treestats::avg_ladder(tree)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, average_ladder = c(res))
+                times_df <- cbind(times_df, average_ladder = c(time))
+
+		start.time <- Sys.time()
+                res <- treestats::max_closeness(tree, weight = FALSE)
+                end.time <- Sys.time()
+                time <- difftime(end.time, start.time, units = "secs")[[1]]
+                results_df <- cbind(results_df, maximum_closeness = c(res))
+                times_df <- cbind(times_df, maximum_closeness = c(time))
 
                 start.time <- Sys.time()
                 res <- treestats::max_betweenness(tree)
@@ -265,7 +286,7 @@ for (tree_name in tree_names) {
                 time <- difftime(end.time, start.time, units = "secs")[[1]]
                 results_df <- cbind(results_df, maximum_bcent = c(res))
                 times_df <- cbind(times_df, maximum_bcent = c(time))
-
+		
 		big_results_df <- rbind(big_results_df, results_df)
 		big_times_df <- rbind(big_times_df, times_df)
 
