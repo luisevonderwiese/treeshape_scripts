@@ -137,12 +137,10 @@ def plot_tree_sizes(base_dirs):
 
 
 
-def plot_variances(base_dirs):
+def plot_variances(base_dirs, selected_indices):
     plots_dir = "../data/general_plots/rooting_variances"
     if not os.path.isdir(plots_dir):
         os.makedirs(plots_dir)
-
-    selected_indices = ["sackin_index", "maximum_depth", "cherry_index", "rogers_j_index", "root_imbalance", "B_2_index"]
 
     results = {}
     modes = ["mean", "var", "var_int", "var_ext", "rel_var", "rel_var_int", "rel_var_ext"] 
@@ -213,9 +211,27 @@ def plot_correlations(base_dirs, corr_type, index_list, list_name):
     plt.clf()
 
 
+def plot_size_correlations(base_dirs):
+    plots_dir = "../data/general_plots/"
+    if not os.path.isdir(plots_dir):
+        os.makedirs(plots_dir)
+
+
+    for mode in ["absolute", "relative_max", "relative_yule", "relative_tips"]:
+        df = pd.read_csv(os.path.join("../data/general_output/", "size_correlations_" + mode + ".tsv"), sep = "\t")
+        df = df.sort_values('corr')
+        plt.scatter(df["index"], df["corr"], label = mode)
+    plt.legend()
+    plt.xticks(rotation=45, ha='right')
+    plt.savefig(os.path.join(plots_dir, "size_correlation.png"))
+    plt.clf()
+
+
 base_dirs = ["../data/evonaps_dna"]
+selected_indices = ["sackin_index", "maximum_depth", "cherry_index", "rogers_j_index", "root_imbalance", "B_2_index"]
+
 plot_tree_sizes(base_dirs)
-plot_variances(base_dirs)
+plot_variances(base_dirs, selected_indices)
 plot_correlations(base_dirs, "database", GROUPS, "groups")
 plot_correlations(base_dirs, "rerooting", GROUPS_ROOTING, "groups_rooting")
-
+plot_size_correlations(base_dirs)

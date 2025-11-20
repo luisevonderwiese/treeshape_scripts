@@ -49,7 +49,7 @@ def determine_database_variances(base_dirs):
     for base_dir in base_dirs:
         results_dir = os.path.join(base_dir, "treeshapy")
         for tree_name in util.unrooted_tree_names(base_dir):
-            df = pd.read_csv(os.path.join(results_dir, tree_name + "_relative.tsv"), sep= "\t")
+            df = pd.read_csv(os.path.join(results_dir, tree_name + "_absolute.tsv"), sep= "\t")
             for index in INDICES:
                 if index == "maximum_depth":
                     print(df[index])
@@ -71,7 +71,7 @@ def determine_variances(base_dirs):
         if not os.path.isdir(variance_dir):
             os.makedirs(variance_dir)
         for tree_name in util.unrooted_tree_names(base_dir):
-            df = pd.read_csv(os.path.join(results_dir, tree_name + "_relative.tsv"), sep= "\t")
+            df = pd.read_csv(os.path.join(results_dir, tree_name + "_absolute.tsv"), sep= "\t")
             df_external = df[df["root_type"] == "external"]
             df_internal = df[df["root_type"] == "internal"]
             table = []
@@ -89,7 +89,7 @@ def determine_variances(base_dirs):
             df = pd.DataFrame(table, columns=headers)
             df.to_csv(os.path.join(variance_dir, tree_name + ".tsv"), sep = "\t")
 
-def determine_mean_variances(base_dirs):
+def determine_variance_means(base_dirs):
     dfs = []
     for base_dir in base_dirs:
         variances_dir = os.path.join(base_dir, "rooting_variances")
@@ -138,9 +138,9 @@ def determine_database_correlations(base_dirs):
             df = pd.read_csv(os.path.join(results_dir, tree_name + "_absolute.tsv"), sep= "\t")
             for index in INDICES:
                 all_values[index] += [el for el in df[index]]
-        df = pd.DataFrame()
-        for index in INDICES:
-            df[index] = all_values[index]
+    df = pd.DataFrame()
+    for index in INDICES:
+        df[index] = all_values[index]
 
     table = [[index1] + [abs(df[index1].corr(df[index2])) for index2 in INDICES] for index1 in INDICES]
     
@@ -148,6 +148,33 @@ def determine_database_correlations(base_dirs):
     print(tabulate(table, headers = headers, tablefmt="pipe", floatfmt=".6f"))
     df = pd.DataFrame(table, columns=headers)
     df.to_csv("../data/general_output/database_correlations.tsv", sep = "\t")
+
+def determine_size_correlations(base_dirs, mode):
+    all_values = {index : [] for index in INDICES}
+    sizes = []
+    for base_dir in base_dirs:
+        sizes_df = pd.read_csv(os.path.join(base_dir, "tree_sizes.tsv"), sep = "\t")
+        results_dir = os.path.join(base_dir, "treeshapy")
+        for tree_name in util.unrooted_tree_names(base_dir):
+            df = pd.read_csv(os.path.join(results_dir, tree_name + "_" + mode + ".tsv"), sep= "\t")
+            tree_size = sizes_df[sizes_df["tree_name"] == tree_name].iloc[0]["num_tips"]
+            sizes += len(df) * [tree_size]
+            for index in INDICES:
+                all_values[index] += [el for el in df[index]]
+    df = pd.DataFrame()
+    df["size"] = sizes 
+    for index in INDICES:
+        df[index] = all_values[index]
+
+    table = [[index, df[index].corr(df["size"])] for index in INDICES]
+
+    headers = ["index", "corr"]
+    print(tabulate(table, headers = headers, tablefmt="pipe", floatfmt=".6f"))
+    df = pd.DataFrame(table, columns=headers)
+    df.to_csv("../data/general_output/size_correlations_" + mode + ".tsv", sep = "\t")
+
+
+INDICES.remove("furnas_rank")
 
 base_dirs = ["../data/evonaps_dna"]
 out_dir = os.path.join("../data/general_output")
@@ -158,8 +185,11 @@ determine_tree_sizes(base_dirs)
 determine_max_min(base_dirs)
 determine_database_variances(base_dirs)
 determine_variances(base_dirs)
-determine_mean_variances(base_dirs)
+determine_variance_means(base_dirs)
 determine_rerooting_correlations(base_dirs)
 determine_database_correlations(base_dirs)
-
+determine_size_correlations(base_dirs, "absolute")
+determine_size_correlations(base_dirs, "relative_max")
+determine_size_correlations(base_dirs, "relative_yule")
+determine_size_correlations(base_dirs, "relative_tips")
 
