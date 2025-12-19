@@ -2,22 +2,22 @@ import os
 import random
 from ete3 import Tree
 
-def root_trees(base_dir):
-    unrooted_trees_dir = os.path.join(base_dir, "trees/unrooted")
-    rooted_trees_dir = os.path.join(base_dir, "trees/rooted")
-    for d in [rooted_trees_dir]:
-        if not os.path.isdir(d):
-            os.makedirs(d)
+def root_trees():
+    unrooted_trees_dir = os.path.join("../data/chamberlain/plant_trees/plant_trees")
+    rooted_trees_base_dir = os.path.join("../data/chamberlain/plant_trees_rooted")
+    if not os.path.isdir(rooted_trees_base_dir):
+        os.makedirs(rooted_trees_base_dir)
 
     for tree_name in os.listdir(unrooted_trees_dir):
         unrooted_tree_path = os.path.join(unrooted_trees_dir, tree_name)
-        tree = Tree(unrooted_tree_path)
-        tree_name_x = ".".join(tree_name.split(".")[:-1])
-        rooted_trees_dir = os.path.join(base_dir, "trees/rooted", tree_name_x)
-        if os.path.isdir(rooted_trees_dir):
-            continue
+        tree = Tree(unrooted_tree_path, format = 1)
+        tree.resolve_polytomy(recursive = True)
+        tree_name_x = tree_name.split(".")[0].split("_")[1]
         print(tree_name_x)
-        os.makedirs(rooted_trees_dir)
+        rooted_trees_dir = os.path.join(rooted_trees_base_dir, tree_name_x)
+        if not os.path.isdir(rooted_trees_dir):
+            os.makedirs(rooted_trees_dir)
+
         inner_root_id = 0
         for node in tree.iter_descendants():
             if node.is_leaf():
@@ -35,6 +35,4 @@ def root_trees(base_dir):
                 outfile.write(tree.write())
 
 
-#root_trees("../data/evonaps_dna")
-#root_trees("../data/evonaps_aa")
-root_trees("../data/grove")
+root_trees()

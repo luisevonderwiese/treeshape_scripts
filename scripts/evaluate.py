@@ -21,8 +21,8 @@ def evaluate_indices(base_dir):
         rresults_yule_path = os.path.join(results_dir, tree_name + "_relative_yule.tsv")
         rresults_tips_path = os.path.join(results_dir, tree_name + "_relative_tips.tsv")
 
-        #if os.path.isfile(times_path) and os.path.isfile(aresults_path) and os.path.isfile(rresults_path):
-        #    continue
+        if os.path.isfile(times_path) and os.path.isfile(aresults_path) and os.path.isfile(rresults_max_path) and os.path.isfile(rresults_yule_path) and os.path.isfile(rresults_tips_path):
+            continue
 
         for results_path in [times_path, aresults_path, rresults_max_path, rresults_yule_path, rresults_tips_path]:
             header = ["root", "root_type"]

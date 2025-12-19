@@ -17,8 +17,13 @@ def linear_time(base_dirs):
         sizes_df = pd.read_csv(os.path.join(base_dir, "tree_sizes.tsv"), sep = "\t")
         python_dir = os.path.join(base_dir, "treeshapy")
         for tree_name in util.unrooted_tree_names(base_dir):
+            df_path = os.path.join(python_dir, tree_name + "_times.tsv")
+            if not os.path.isfile(df_path):
+                continue
+            times_python = pd.read_csv(df_path, sep = "\t")
+            if len(times_python) == 0:
+                continue
             tree_size = sizes_df[sizes_df["tree_name"] == tree_name].iloc[0]["num_tips"]
-            times_python = pd.read_csv(os.path.join(python_dir, tree_name + "_times.tsv"), sep = "\t")
             for i, row in times_python.iterrows():
                 sizes.append(tree_size)
                 times.append(sum([row[index] for index in INDICES]))
@@ -74,10 +79,10 @@ def comparison_plots(base_dirs, reference, suffix):
 base_dirs = ["../data/evonaps_dna"]
 
 linear_time(base_dirs)
-comparison_plots(base_dirs, "treestats", "")
-comparison_plots(base_dirs, "treebalance", "")
-comparison_plots(base_dirs, "treestats", "_no_precomp")
-comparison_plots(base_dirs, "treebalance", "_no_precomp")
+#comparison_plots(base_dirs, "treestats", "")
+#comparison_plots(base_dirs, "treebalance", "")
+#comparison_plots(base_dirs, "treestats", "_no_precomp")
+#comparison_plots(base_dirs, "treebalance", "_no_precomp")
 
 
 
