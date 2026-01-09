@@ -13,7 +13,7 @@ def evaluate_indices(params):
     tree_name = params[1]
     
     rooted_trees_dir = os.path.join(base_dir, "trees/rooted")
-    results_dir = os.path.join(base_dir, "treeshapy_parallel")
+    results_dir = os.path.join(base_dir, "treeshapy")
     
     
     times_path = os.path.join(results_dir, tree_name + "_times.tsv")
@@ -22,8 +22,8 @@ def evaluate_indices(params):
     rresults_yule_path = os.path.join(results_dir, tree_name + "_relative_yule.tsv")
     rresults_tips_path = os.path.join(results_dir, tree_name + "_relative_tips.tsv")
 
-    #if os.path.isfile(times_path) and os.path.isfile(aresults_path) and os.path.isfile(rresults_max_path) and os.path.isfile(rresults_yule_path) and os.path.isfile(rresults_tips_path):
-    #    return
+    if os.path.isfile(times_path) and os.path.isfile(aresults_path) and os.path.isfile(rresults_max_path) and os.path.isfile(rresults_yule_path) and os.path.isfile(rresults_tips_path):
+        return
 
     for results_path in [times_path, aresults_path, rresults_max_path, rresults_yule_path, rresults_tips_path]:
         header = ["root", "root_type"]
@@ -98,13 +98,13 @@ def evaluate_indices_no_precomp(params):
     base_dir = params[0]
     tree_name = params[1]
     rooted_trees_dir = os.path.join(base_dir, "trees/rooted")
-    results_dir = os.path.join(base_dir, "treeshapy_parallel")
+    results_dir = os.path.join(base_dir, "treeshapy")
 
 
     times_path = os.path.join(results_dir, tree_name + "_times_no_precomp.tsv")
 
-    #if os.path.isfile(times_path):
-    #    continue
+    if os.path.isfile(times_path):
+        return
 
     header = ["root", "root_type"] + INDICES
     with open(times_path, "w+") as outfile:
@@ -134,18 +134,19 @@ def evaluate_indices_no_precomp(params):
             outfile.write("\t".join([str(time) for time in times]))
             outfile.write("\n")
 
+#base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove"]
 base_dirs = ["../data/evonaps_dna"]
 for base_dir in base_dirs:
-    results_dir = os.path.join(base_dir, "treeshapy_parallel")
+    results_dir = os.path.join(base_dir, "treeshapy")
     if not os.path.isdir(results_dir):
         os.makedirs(results_dir)
 
-    tree_names = [(base_dir, tree_name) for tree_name in util.unrooted_tree_names(base_dir)[:50]]
+    tree_names = [(base_dir, tree_name) for tree_name in util.unrooted_tree_names(base_dir)]
     num_cpu = multiprocessing.cpu_count()
     print(num_cpu)
-    pool = multiprocessing.Pool(processes=num_cpu)
+    pool = multiprocessing.Pool(processes=num_cpu - 4)
     pool.map(evaluate_indices, tree_names)
-    #pool.map(evaluate_indices_no_precomp, tree_names)
+    pool.map(evaluate_indices_no_precomp, tree_names)
         
 
 

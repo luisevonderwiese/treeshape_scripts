@@ -13,9 +13,8 @@ INDICES.remove("colijn_plazotta_rank")
 
 base_dir = "../data/general_output"
 threshold = 0.9
-#corr_type = "database"
+corr_type = "database"
 #corr_type = "rerooting"
-corr_type = "vc"
 
 groups_dir = os.path.join(base_dir, "groups")
 if not os.path.isdir(groups_dir):

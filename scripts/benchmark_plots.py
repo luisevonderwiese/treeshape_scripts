@@ -63,7 +63,11 @@ def comparison_plots(base_dirs, reference, suffix):
     
     for times_dict in [times_R, times_python]:
         for size, size_times in times_dict.items():
-            times_dict[size] = sum(size_times) / len(size_times)
+            if len(size_times) > 0:
+                v = sum(size_times) / len(size_times)
+            else:
+                v = float("nan") 
+            times_dict[size] = v
     times_R = dict(sorted(times_R.items()))
     times_python = dict(sorted(times_python.items()))
 
@@ -79,9 +83,9 @@ def comparison_plots(base_dirs, reference, suffix):
 base_dirs = ["../data/evonaps_dna"]
 
 linear_time(base_dirs)
-#comparison_plots(base_dirs, "treestats", "")
+comparison_plots(base_dirs, "treestats", "")
 #comparison_plots(base_dirs, "treebalance", "")
-#comparison_plots(base_dirs, "treestats", "_no_precomp")
+comparison_plots(base_dirs, "treestats", "_no_precomp")
 #comparison_plots(base_dirs, "treebalance", "_no_precomp")
 
 

@@ -1,4 +1,4 @@
-set = "evonaps_dna"
+set = "evonaps_aa"
 outdir = paste("../data/", set, "/treestats/", sep = "")
 if (!file.exists(outdir)){
 	dir.create(file.path(outdir))
@@ -8,6 +8,9 @@ super_tree_dir = paste("../data/", set, "/trees/rooted/", sep = "")
 tree_names <- list.dirs(path=super_tree_dir, full.names=FALSE, recursive=FALSE)
 for (tree_name in tree_names) {
 	print(tree_name)
+	results_file_name <- paste(outdir, tree_name, "_absolute.tsv", sep="")
+        times_file_name <- paste(outdir, tree_name, "_times.tsv", sep="")
+        if ((file.exists(results_file_name)) & (file.exists(times_file_name))) next
 	tree_dir = paste(super_tree_dir, tree_name, sep = "")
 	big_results_df <- data.frame()
 	big_times_df <- data.frame()
@@ -292,6 +295,6 @@ for (tree_name in tree_names) {
 
 	}
         
-	write.table(big_results_df, file=paste(outdir, tree_name, "_absolute.tsv", sep=""), quote=FALSE, sep='\t', col.names = NA)
-	write.table(big_times_df, file=paste(outdir, tree_name, "_times.tsv", sep=""), quote=FALSE, sep='\t', col.names = NA)
+	write.table(big_results_df, file=results_file_name, quote=FALSE, sep='\t', col.names = NA)
+	write.table(big_times_df, file=times_file_name, quote=FALSE, sep='\t', col.names = NA)
 }

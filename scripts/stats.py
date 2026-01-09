@@ -92,7 +92,7 @@ def get_kurtosis(values):
             return float("nan")
 
 
-def determine_variances(base_dirs):
+def determine_stats(base_dirs):
     db_df = pd.read_csv("../data/general_output/database_variances.tsv", sep = "\t")
     for base_dir in base_dirs:
         results_dir = os.path.join(base_dir, "treeshapy")
@@ -277,7 +277,7 @@ def gather_stats(base_dirs):
         df = pd.DataFrame()
         df["size"] = sizes
         for index in INDICES:
-            df[index] = all_valuesi[stat][index]
+            df[index] = all_values[stat][index]
         df.to_csv("../data/general_output/" + stat + ".tsv", sep = "\t")
 
 
@@ -287,6 +287,7 @@ INDICES.remove("stemminess")
 
 
 
+#base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove"]
 base_dirs = ["../data/evonaps_dna"]
 out_dir = os.path.join("../data/general_output")
 if not os.path.isdir(out_dir):
@@ -295,15 +296,15 @@ if not os.path.isdir(out_dir):
 #determine_tree_sizes(base_dirs)
 #determine_max_min(base_dirs)
 
-##determine_database_variances(base_dirs) #deprecated
-determine_stats(base_dirs)
-gather_stats(base_dirs)
-##determine_variance_means(base_dirs) #deprecated
+#determine_database_variances(base_dirs) #deprecated
+#determine_stats(base_dirs)
+#gather_stats(base_dirs)
+#determine_variance_means(base_dirs) #deprecated
 
-##determine_rerooting_correlations(base_dirs) # not sure if of interest
+#determine_rerooting_correlations(base_dirs) # not sure if of interest
 #determine_database_correlations(base_dirs)
 
+modes = ["relative_max", "relative_tips", "relative_yule"]
 for mode in modes:
     gather_results(base_dirs, mode)
     determine_size_correlations(base_dirs, mode)
-gather_stats(base_dir)

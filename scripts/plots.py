@@ -86,7 +86,8 @@ def plot_variances(base_dirs, selected_indices, suffix = ""):
             data.append(df[index])
     
         plt.figure(figsize=(20, 10))
-        ax = seaborn.stripplot(data = data, log_scale=True)
+        data = [[el for el in l if not (el is float("nan") or el is float("inf") or el is float("-inf"))] for l in data]
+        ax = seaborn.violinplot(data = data, log_scale=True)
         ax.axhline(y=1, color='gray', linestyle='--')
         
         ax.set_xticklabels(selected_indices)
@@ -167,33 +168,36 @@ def plot_size_correlations(selected_indices, suffix = ""):
         for index in selected_indices:
             data.append(df[index])
             plt.scatter(df["tree_size"], df[index], label = index, s = 10)
+        if np.isnan(data).all():
+            continue
         plt.legend(loc = "upper left")
         plt.xlabel("tree size n")
         plt.ylabel("index values")
         plt.yscale("log")
-        plt.savefig(os.path.join(plots_dir, "size_correlation_scatter_" + mode + ".png"))
+        plt.savefig(os.path.join(plots_dir, "size_correlation_scatter_" + mode + suffix + ".png"))
         plt.clf()
         plt.figure(figsize=(20, 10))
-        if mode in ["absolute", "relative_tips"]:
-            ax = seaborn.stripplot(data = data, log_scale=True)
-        else:
-            ax = seaborn.stripplot(data = data)
+        data = [[el for el in l if not el is float("nan") and np.isfinite(el)] for l in data]
+        #if mode in ["absolute", "relative_tips"]:
+        #    ax = seaborn.violinplot(data = data, log_scale=True)
+        #else:
+        ax = seaborn.violinplot(data = data)
         ax.set_xticklabels(selected_indices)
         plt.xticks(rotation=90)
         plt.xlabel("index")
         plt.ylabel("value")
-        plt.savefig(os.path.join(plots_dir, "size_values_" + mode +  + suffix + ".png"), bbox_inches='tight')
+        plt.savefig(os.path.join(plots_dir, "size_values_" + mode + suffix + ".png"), bbox_inches='tight')
         plt.clf()
 
 
 base_dirs = ["../data/evonaps_dna"]
 
-plot_tree_sizes(base_dirs)
+#plot_tree_sizes(base_dirs)
 #plot_correlations(base_dirs, "database", "groups_90")
 #plot_correlations(base_dirs, "database", "repr_90")
+
 ##plot_correlations(base_dirs, "rerooting", "groups_95") # not sure whether of interest
 ##plot_correlations(base_dirs, "rerooting", "repr_95")
-#plot_size_correlations(base_dirs)
 
 
 experiment_groups = [[
@@ -265,9 +269,9 @@ experiment_groups = [[
 
 for k, sublist in enumerate(experiment_groups):
     print(k)
-    plot_variances(base_dirs, sublist, "_" + str(k))
+    #plot_variances(base_dirs, sublist, "_" + str(k))
     #plot_against_size(base_dirs, sublist, stat = "kurtosis", suffix = "_" + str(k)) #not looking good
-    #plot_size_correlations(selected_indices, suffix = "_" + str(k))
+    plot_size_correlations(sublist, suffix = "_" + str(k))
 
 
 
