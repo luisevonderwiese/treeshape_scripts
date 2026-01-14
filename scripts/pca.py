@@ -17,7 +17,7 @@ def pca(mode):
     X = X.drop('tree_size', axis=1)
     X.replace([np.inf, -np.inf], np.nan, inplace=True)
     X.drop('colijn_plazotta_rank', axis=1, inplace=True)
-    X.drop('furnas_rank', axis=1, inplace=True)
+    #X.drop('furnas_rank', axis=1, inplace=True)
     X.dropna(axis=0, inplace=True)
     print(X) 
     scaler = StandardScaler()
@@ -40,13 +40,13 @@ def plot_pca(mode, color_prop):
     plt.ylabel("Principal Component 2")
     plt.savefig("../data/general_plots/pca_" + mode + "_" + color_prop + ".png")
 
-modes = ["absolute", "relative_tips", "relative_max", "relative_yule"]
+modes = ["absolute", "relative_tips"]
 
 color_props = ["tree_size", "sackin_index"]
 
 for mode in modes:
     pca(mode)
     for color_prop in color_props:
-        plot_pca(mode, color_props)
+        plot_pca(mode, color_prop)
 
 
