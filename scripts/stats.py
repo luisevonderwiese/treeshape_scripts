@@ -199,9 +199,32 @@ def determine_database_correlations(base_dirs):
     df = pd.DataFrame(table, columns=headers)
     df.to_csv("../data/general_output/database_correlations.tsv", sep = "\t")
 
+
+def get_correlation(df, corr_mode):
+    if corr_mode == "linear":
+        sizes = df["size"]
+    elif corr_mode == "log":
+        sizes = [math.log(s) for s in df["size"]]
+    elif corr_mode == "nlogn":
+        sizes = [s * math.log(s) for s in df["size"]]
+    elif corr_mode == "quadratic":
+        sizes = [s * s for s in df["size"]]
+    elif corr_mode == "exp":
+        sizes = []
+        for s in df["size"]:
+            try:
+                sizes.append(math.pow(2, s))
+            except Exception as e:
+                sizes.append(float("inf"))
+    else:
+        raise ValueError(corr_mode, "is not a correlation mode")
+    return [df[index].corr(pd.Series(sizes)) for index in INDICES]
+
+
 def determine_size_correlations(base_dirs, mode):
     all_values = {index : [] for index in INDICES}
     sizes = []
+    corr_df = pd.DataFrame({"index" : INDICES})
     for base_dir in base_dirs:
         sizes_df = pd.read_csv(os.path.join(base_dir, "tree_sizes.tsv"), sep = "\t")
         results_dir = os.path.join(base_dir, "treeshapy")
@@ -220,13 +243,10 @@ def determine_size_correlations(base_dirs, mode):
     df["size"] = sizes 
     for index in INDICES:
         df[index] = all_values[index]
-
-    table = [[index, df[index].corr(df["size"])] for index in INDICES]
-
-    headers = ["index", "corr"]
-    print(tabulate(table, headers = headers, tablefmt="pipe", floatfmt=".6f"))
-    df = pd.DataFrame(table, columns=headers)
-    df.to_csv("../data/general_output/size_correlations_" + mode + ".tsv", sep = "\t")
+    for corr_mode in ["linear", "log", "nlogn", "quadratic", "exp"]:
+        print(corr_mode)
+        corr_df["corr_" + corr_mode] = get_correlation(df, corr_mode)
+    corr_df.to_csv("../data/general_output/size_correlations_" + mode + ".tsv", sep = "\t")
 
 
 def gather_results(base_dirs, mode):
@@ -304,7 +324,7 @@ if not os.path.isdir(out_dir):
 #determine_rerooting_correlations(base_dirs) # not sure if of interest
 #determine_database_correlations(base_dirs)
 
-modes = ["relative_max", "relative_tips", "relative_yule"]
+modes = ["absolute"] #"relative_max", "relative_tips", "relative_yule"]
 for mode in modes:
-    gather_results(base_dirs, mode)
+    #gather_results(base_dirs, mode)
     determine_size_correlations(base_dirs, mode)

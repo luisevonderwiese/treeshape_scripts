@@ -77,7 +77,7 @@ def plot_variances(base_dirs, selected_indices, suffix = "", colors = None, labe
     if not os.path.isdir(plots_dir):
         os.makedirs(plots_dir)
 
-    modes = ["kurtosis"]
+    modes = ["kurtosis", "kurtosis_int", "kurtosis_ext"]
 
     if colors is not None:
         palette = seaborn.color_palette("husl", max(colors) + 1)
@@ -382,9 +382,9 @@ index_types_values = {"node_indices":[
           "bcent_root",
           "maximum_farness",
           "minimum_farness"],
-"network_indices4" : ["minimum_bcent",
-          "maximum_closeness"],
-"network_indices5": ["bcent_variance"],
+"network_indices4" : ["minimum_bcent"],
+"network_indices5" : ["maximum_closeness"],
+"network_indices6": ["bcent_variance"],
 "root_indices": ["root_imbalance",
           "I_root"],
 #"ranking_indices" : ["colijn_plazotta_rank",
@@ -427,26 +427,25 @@ index_types_yule = {"node_indices":["colless_index"],
 #for i, (index_type, indices) in enumerate(index_types_max.items()):
 #    plot_size_correlations(indices, "relative_max", suffix = "_" + index_type)
 
-for i, (index_type, indices) in enumerate(index_types_yule.items()):
-    plot_size_correlations(indices, "relative_yule", suffix = "_" + index_type)
-
-assert(False)
-
-for i, (index_type, indices) in enumerate(index_types_values.items()):
-    plot_size_correlations(indices, "absolute", suffix = "_" + index_type)
-    plot_size_correlations(indices, "relative_tips", suffix = "_" + index_type)
+#for i, (index_type, indices) in enumerate(index_types_yule.items()):
+#    plot_size_correlations(indices, "relative_yule", suffix = "_" + index_type)
 
 
-all_indices = []
-colors = []
-labels = []
+#for i, (index_type, indices) in enumerate(index_types_values.items()):
+#    plot_size_correlations(indices, "absolute", suffix = "_" + index_type)
+#    plot_size_correlations(indices, "relative_tips", suffix = "_" + index_type)
 
-for i, (index_type, indices) in enumerate(index_types.items()):
-    all_indices += indices
-    colors += len(indices) * [i]
-    labels += len(indices) * [index_type]
-    plot_against_size(base_dirs, indices, stat = "kurtosis", suffix = "_" + index_type)
 
-plot_against_size(base_dirs, ["d_index", "rooted_quartet_index", "average_ladder"], stat = "kurtosis", suffix = "_structure2_indices")
+#all_indices = []
+#colors = []
+#labels = []
 
-plot_variances(base_dirs, all_indices, "_all", colors, labels)
+#for i, (index_type, indices) in enumerate(index_types.items()):
+#    all_indices += indices
+#    colors += len(indices) * [i]
+#    labels += len(indices) * [index_type]
+    #plot_against_size(base_dirs, indices, stat = "kurtosis", suffix = "_" + index_type)
+
+#plot_against_size(base_dirs, ["d_index", "rooted_quartet_index", "average_ladder"], stat = "kurtosis", suffix = "_structure2_indices")
+
+#plot_variances(base_dirs, all_indices, "_all", colors, labels)
