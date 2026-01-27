@@ -134,8 +134,8 @@ def evaluate_indices_no_precomp(params):
             outfile.write("\t".join([str(time) for time in times]))
             outfile.write("\n")
 
-#base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove"]
-base_dirs = ["../data/evonaps_dna"]
+base_dirs = ["../data/evonaps_aa", "../data/grove"]
+#base_dirs = ["../data/evonaps_dna"]
 for base_dir in base_dirs:
     results_dir = os.path.join(base_dir, "treeshapy")
     if not os.path.isdir(results_dir):

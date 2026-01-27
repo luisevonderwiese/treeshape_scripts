@@ -6,7 +6,7 @@ from treeshapy.treeshapy import INDICES
 import util
 
 def linear_time(base_dirs):
-    plots_dir = "../data/general_plots"
+    plots_dir = "../data/plots"
     if not os.path.isdir(plots_dir):
         os.makedirs(plots_dir)
     
@@ -37,7 +37,7 @@ def linear_time(base_dirs):
 
 
 def comparison_plots(base_dirs, reference, suffix):
-    plots_dir = "../data/general_plots"
+    plots_dir = "../data/plots"
     if not os.path.isdir(plots_dir):
         os.makedirs(plots_dir)
     
