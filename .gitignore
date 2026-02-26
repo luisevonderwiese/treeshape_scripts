@@ -3,3 +3,11 @@ results/
 plots/
 reference_results/
 scripts/__pycache__/*
+covid/plots/
+covid/treeshapy/
+covid/rooted/
+root_digger_trees/ben/
+root_digger_trees/plots/
+root_digger_trees/simulated*
+root_digger_trees/spiders/treeshapy
+root_digger_trees/spiders/rooted
