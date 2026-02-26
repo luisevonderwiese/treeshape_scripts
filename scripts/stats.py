@@ -91,6 +91,11 @@ def get_kurtosis(values):
         except OverflowError:
             return float("nan")
 
+def get_iqr(values):
+    Q3 = np.quantile(values, 0.9)
+    Q1 = np.quantile(values, 0.1)
+    return Q3 - Q1
+
 
 def determine_stats(base_dirs):
     db_df = pd.read_csv("../data/general_output/database_variances.tsv", sep = "\t")
@@ -119,8 +124,11 @@ def determine_stats(base_dirs):
                 kurtosis = get_kurtosis(df[index])
                 kurtosis_int = get_kurtosis(df_internal[index])
                 kurtosis_ext = get_kurtosis(df_external[index])
-                table.append([index, mean, kurtosis, kurtosis_int, kurtosis_ext]) 
-            headers = ["index", "mean", "kurtosis", "kurtosis_int", "kurtosis_ext"]
+                iqr = get_iqr(df[index])
+                iqr_int = get_iqr(df_internal[index])
+                iqr_ext = get_iqr(df_external[index])
+                table.append([index, mean, kurtosis, kurtosis_int, kurtosis_ext, iqr, iqr_int, iqr_ext]) 
+            headers = ["index", "mean", "kurtosis", "kurtosis_int", "kurtosis_ext", "iqr", "iqr_int", "iqr_ext"]
             print(tabulate(table, headers = headers, tablefmt="pipe", floatfmt=".6f"))
             df = pd.DataFrame(table, columns=headers)
             df.to_csv(os.path.join(variance_dir, tree_name + ".tsv"), sep = "\t")
@@ -189,37 +197,32 @@ def determine_database_correlations(base_dirs):
             for index in INDICES:
                 all_values[index] += [el for el in df[index]]
     df = pd.DataFrame()
+    table = []
     for index in INDICES:
         df[index] = all_values[index]
+        iqr = get_iqr(df[index])
+        table.append([index, iqr])
+    headers = ["index", "iqr"]
+    iqr_df = pd.DataFrame(table, columns=headers)
+    iqr_df.to_csv("../data/general_output/database_iqrs.tsv", sep = "\t")
+    return
+
 
     table = [[index1] + [abs(df[index1].corr(df[index2])) for index2 in INDICES] for index1 in INDICES]
     
     headers = ["index1"] + INDICES
     print(tabulate(table, headers = headers, tablefmt="pipe", floatfmt=".6f"))
-    df = pd.DataFrame(table, columns=headers)
-    df.to_csv("../data/general_output/database_correlations.tsv", sep = "\t")
+    corr_df = pd.DataFrame(table, columns=headers)
+    corr_df.to_csv("../data/general_output/database_correlations.tsv", sep = "\t")
 
 
 def get_correlation(df, corr_mode):
-    if corr_mode == "linear":
-        sizes = df["size"]
-    elif corr_mode == "log":
-        sizes = [math.log(s) for s in df["size"]]
-    elif corr_mode == "nlogn":
-        sizes = [s * math.log(s) for s in df["size"]]
-    elif corr_mode == "quadratic":
-        sizes = [s * s for s in df["size"]]
-    elif corr_mode == "exp":
-        sizes = []
-        for s in df["size"]:
-            try:
-                sizes.append(math.pow(2, s))
-            except Exception as e:
-                sizes.append(float("inf"))
+    if corr_mode == "pearson":
+        return [df[index].corr(pd.Series(df["size"])) for index in INDICES]
+    elif corr_mode == "spearman":
+        return [df[index].corr(pd.Series(df["size"]), method = "spearman") for index in INDICES]
     else:
         raise ValueError(corr_mode, "is not a correlation mode")
-    return [df[index].corr(pd.Series(sizes)) for index in INDICES]
-
 
 def determine_size_correlations(base_dirs, mode):
     all_values = {index : [] for index in INDICES}
@@ -243,7 +246,7 @@ def determine_size_correlations(base_dirs, mode):
     df["size"] = sizes 
     for index in INDICES:
         df[index] = all_values[index]
-    for corr_mode in ["linear", "log", "nlogn", "quadratic", "exp"]:
+    for corr_mode in ["pearson", "spearman"]:
         print(corr_mode)
         corr_df["corr_" + corr_mode] = get_correlation(df, corr_mode)
     corr_df.to_csv("../data/general_output/size_correlations_" + mode + ".tsv", sep = "\t")
@@ -273,7 +276,7 @@ def gather_results(base_dirs, mode):
 
 
 def gather_stats(base_dirs):
-    stats = ["mean", "kurtosis", "kurtosis_int", "kurtosis_ext"]
+    stats = ["mean", "kurtosis", "kurtosis_int", "kurtosis_ext", "iqr", "iqr_int", "iqr_ext"]
     all_values = {}
     for stat in stats:
         all_values[stat] = {index : [] for index in INDICES}
@@ -322,9 +325,9 @@ if not os.path.isdir(out_dir):
 #determine_variance_means(base_dirs) #deprecated
 
 #determine_rerooting_correlations(base_dirs) # not sure if of interest
-#determine_database_correlations(base_dirs)
+determine_database_correlations(base_dirs)
 
-modes = ["absolute"] #"relative_max", "relative_tips", "relative_yule"]
-for mode in modes:
+modes = ["absolute", "relative_max", "relative_tips", "relative_yule"]
+#for mode in modes:
     #gather_results(base_dirs, mode)
-    determine_size_correlations(base_dirs, mode)
+    #determine_size_correlations(base_dirs, mode)
