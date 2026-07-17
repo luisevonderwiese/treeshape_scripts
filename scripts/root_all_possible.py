@@ -1,4 +1,5 @@
 import os
+import shutil
 import random
 from ete3 import Tree
 
@@ -8,7 +9,6 @@ def root_trees(base_dir):
     for d in [rooted_trees_dir]:
         if not os.path.isdir(d):
             os.makedirs(d)
-
     for tree_name in os.listdir(unrooted_trees_dir):
         unrooted_tree_path = os.path.join(unrooted_trees_dir, tree_name)
         tree = Tree(unrooted_tree_path)
@@ -21,7 +21,7 @@ def root_trees(base_dir):
         inner_root_id = 0
         for node in tree.iter_descendants():
             if node.is_leaf():
-                root = node.name.replace("/", "").replace("_", "")
+                root = node.name.replace("/", "").replace("_", "").replace(".", "")
                 root_type = "external"
             else:
                 root_type = "internal"
@@ -37,4 +37,4 @@ def root_trees(base_dir):
 
 #root_trees("../data/evonaps_dna")
 #root_trees("../data/evonaps_aa")
-root_trees("../data/grove")
+root_trees("../data/grove_modificated")

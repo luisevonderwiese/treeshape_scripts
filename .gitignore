@@ -11,3 +11,5 @@ root_digger_trees/plots/
 root_digger_trees/simulated*
 root_digger_trees/spiders/treeshapy
 root_digger_trees/spiders/rooted
+
+scripts/old/

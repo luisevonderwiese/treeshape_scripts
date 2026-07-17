@@ -1,4 +1,5 @@
 import os
+import math
 import numpy as np
 import pandas as pd
 from tabulate import tabulate
@@ -9,22 +10,41 @@ import seaborn
 
 import util
 
+from treeshapy.treeshapy import INDICES_UNROOTED
+
+
+
 def plot_tree_sizes(base_dirs, plots_dir):
+    sizes = []
+    nums = []
     for base_dir in base_dirs:
-        sizes = pd.read_csv(os.path.join(base_dir, "tree_sizes.tsv"), sep = "\t")["num_tips"] 
-        hist, bins, _ = plt.hist(sizes, bins=30)
-        logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
-        plt.clf()
-        plt.hist(sizes, bins=logbins)
-        plt.xscale("log")
-        base_dir_name = base_dir.split(os.sep)[-1]
-        plt.savefig(os.path.join(plots_dir, "tree_sizes_" + base_dir_name + ".png"))
-        plt.clf()
+        df = pd.read_csv(os.path.join(base_dir, "tree_sizes.tsv"), sep = "\t")
+        sizes = list(df["num_tips"])
+        num_rooted = sum([2 * n - 3 for n in sizes])
+        nums.append([base_dir, len(df), num_rooted])
+        sizes += list(sizes)
+    hist, bins, _ = plt.hist(sizes, bins=30)
+    logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
+    plt.clf()
+    plt.hist(sizes, bins=logbins, log = False)
+    plt.xscale("log")
+    plt.xlabel("num tips")
+    plt.ylabel("num trees")
+    base_dir_name = base_dir.split(os.sep)[-1]
+    plt.savefig(os.path.join(plots_dir, "tree_sizes.png"))
+    plt.clf()
+
+    total_unrooted = sum([n[1] for n in nums])
+    total_rooted = sum([n[2] for n in nums])
+    nums.append(["total", total_unrooted, total_rooted])
+    tab = tabulate(nums, headers = ["Source", "Num. unrooted", "Num. rooted"], tablefmt = "latex_raw")
+    print(tab)
+
 
 
 def plot_kurtosis(selected_indices, plots_dir, suffix = "", colors = None, labels = None):
     modes = ["kurtosis", "kurtosis_int", "kurtosis_ext"]
-
+    borders = [0, 13, 25, 39, 54] 
     if colors is not None:
         palette = seaborn.color_palette("husl", max(colors) + 1)
         colors = [palette[color] for color in colors]
@@ -33,23 +53,50 @@ def plot_kurtosis(selected_indices, plots_dir, suffix = "", colors = None, label
         data = []
         for index in selected_indices:
             data.append(df[index])
-
-        plt.figure(figsize=(2 * len(selected_indices), 10))
         data = [[el for el in l if not (el is float("nan") or el is float("inf") or el is float("-inf") or el == 0)] for l in data]
-        if colors is not None:
-            ax = seaborn.violinplot(data = data, palette = colors, log_scale = True)
+        if suffix != "_small":
+            fig, axes = plt.subplots(nrows=4, ncols = 1, figsize=(40, 50))
+            ax_list = axes.flat
         else:
-            ax = seaborn.violinplot(data = data, log_scale=True)
-        ax.set_ylim(0.8, 1100)
-        ax.axhline(y=1, color='gray', linestyle='--')
+            fig, axes = plt.subplots(nrows=1, ncols = 1, figsize=(15, 7))
+            ax_list = [axes]
+        for idx, ax in enumerate(ax_list):
+            if suffix != "_small":
+                sub_data = data[borders[idx]:borders[idx + 1]]
+                sub_colors = colors[borders[idx]:borders[idx + 1]]
+                sub_ticks = selected_indices[borders[idx]:borders[idx + 1]]
+            else:
+                sub_data = data
+                sub_colors = colors
+                sub_ticks = selected_indices
+            if colors is not None:
+                seaborn.boxplot(data = sub_data, palette = sub_colors, ax = ax, log_scale = True)
+            else:
+                seaborn.boxplot(data = sub_data, ax = ax, log_scale=True)
+            ax.set_ylim(0.8, 700)
+            ax.axhline(y=1.8, color='gray', linestyle='--')
+            ax.axhline(y=3, color='gray', linestyle='--')
 
-        ax.set_xticklabels(selected_indices)
-        plt.xticks(rotation=90)
-        plt.xlabel("index")
-        plt.ylabel(mode)
+            ax.set_xticklabels(sub_ticks, rotation = 45)
+            ax.set_ylabel(mode)
+            if idx == len(ax_list) - 1:
+                ax.set_xlabel("index")
+
 
         plt.savefig(os.path.join(plots_dir, mode + suffix + ".png"), bbox_inches='tight')
         plt.clf()
+
+
+def print_unrooted_percentiles():
+    df = pd.read_csv(os.path.join("../data/general_output/unrooted_percentile.tsv"), sep = "\t")
+    print(df)
+    res = []
+    for index in INDICES_UNROOTED:
+        vals = df[index]
+        res.append(["\codeword{" + index + "}", "$" + str(round(np.mean(vals), 5)) + "$", "$" + str(round(np.var(vals), 5)) + "$"])
+    tab = tabulate(res, headers = ["index", "mean", "var"], tablefmt = "latex_raw")
+    print(tab)
+    
 
 
 def plot_iqr(selected_indices, plots_dir, suffix = "", colors = None, labels = None):
@@ -68,41 +115,83 @@ def plot_iqr(selected_indices, plots_dir, suffix = "", colors = None, labels = N
     
         plt.figure(figsize=(2 * len(selected_indices), 10))
         data = [[el for el in l if not (el is float("nan") or el is float("inf") or el is float("-inf") or el == 0)] for l in data]
-        if colors is not None:
-            ax = seaborn.boxplot(data = data, palette = colors, log_scale = True)
-        else:
-            ax = seaborn.violinplot(data = data, log_scale = True)
-        ax.set_ylim(0.000001, 1000)
-        ax.axhline(y=1, color='gray', linestyle='--')
+        fig, axes = plt.subplots(nrows=5, ncols = 1, figsize=(30, 50))
+        for idx, ax in enumerate(axes.flat):
+            sub_data = data[idx * 11:(idx + 1)*11]
+            if colors is not None:
+                seaborn.boxplot(data = sub_data, palette = colors[idx*11:(idx+1)*11], ax = ax, log_scale = True)
+            else:
+                seaborn.violinplot(data = sub_data, ax = ax, log_scale = True)
+            ax.set_ylim(0.000001, 1000)
+            ax.axhline(y=1, color='gray', linestyle='--')
         
-        ax.set_xticklabels(selected_indices)
-        plt.xticks(rotation=90)
-        plt.xlabel("index")
-        plt.ylabel(mode)
+            ax.set_xticklabels(selected_indices[idx * 11:(idx + 1) * 11], rotation = 45)
+            ax.set_ylabel(mode)
+            if idx == len(axes) - 1:
+                ax.set_xlabel("index")
  
         plt.savefig(os.path.join(plots_dir, mode + suffix + ".png"), bbox_inches='tight')
         plt.clf()
 
 
-def plot_correlations(corr_type, index_list, plots_dir):
-    df = pd.read_csv(os.path.join("../data/general_output/", corr_type + "_correlations.tsv"), sep = "\t")
-    heatmap = []
-    for i, index1 in enumerate(index_list):
-        heatmap.append([])
-        for j, index2 in enumerate(index_list):
-            if index1 == "" or index2 == "":
-                corr = float("nan")
-            else:
-                corr = df[df["index1"] == index1].iloc[0][index2]
-            heatmap[i].append(corr)
+def plot_correlations(corr_mode, index_list, plots_dir):
+    for corr_type in ["pearson", "spearman"]:
+        df = pd.read_csv(os.path.join("../data/general_output/", corr_mode + "_correlations_" + corr_type + ".tsv"), sep = "\t")
+        heatmap = []
+        for i, index1 in enumerate(index_list):
+            heatmap.append([])
+            for j, index2 in enumerate(index_list):
+                if index1 == "" or index2 == "":
+                    corr = float("nan")
+                else:
+                    corr = df[df["index1"] == index1].iloc[0][index2]
+                heatmap[i].append(corr)
 
-    fig, ax = plt.subplots(figsize=(15, 15))
-    im = ax.imshow(heatmap)
-    fig.colorbar(im)
-    ax.set_xticks(range(len(index_list)), labels=index_list, rotation=45, ha="right", rotation_mode="anchor")
-    ax.set_yticks(range(len(index_list)), labels=index_list)
-    plt.savefig(os.path.join(plots_dir, corr_type + "_heatmap.png"))
-    plt.clf()
+        fig, ax = plt.subplots(figsize=(15, 15))
+        im = ax.imshow(heatmap)
+        fig.colorbar(im)
+        ax.set_xticks(range(len(index_list)), labels=index_list, rotation=45, ha="right", rotation_mode="anchor")
+        ax.set_yticks(range(len(index_list)), labels=index_list)
+        plt.tight_layout()
+        plt.savefig(os.path.join(plots_dir, corr_mode + "_heatmap_" + corr_type + ".png"))
+        plt.clf()
+
+
+def plot_clustermap(corr_mode, index_list, plots_dir):
+    for corr_type in ["pearson", "spearman"]:
+        df = pd.read_csv(os.path.join("../data/general_output/", corr_mode + "_correlations_" + corr_type + ".tsv"), sep = "\t")
+        heatmap = []
+        ticks = []
+        skipped = 0
+        for i, index1 in enumerate(index_list):
+            if index1 == "":
+                skipped += 1
+                continue
+            heatmap.append([])
+            ticks.append(index1)
+            for j, index2 in enumerate(index_list):
+                if index2 == "":
+                    continue
+                corr = df[df["index1"] == index1].iloc[0][index2]
+                if not math.isfinite(corr) or corr != corr:
+                    corr = 0
+                heatmap[i - skipped].append(corr)
+        g = seaborn.clustermap(heatmap, figsize = (15, 15))
+        permutation =  [int(i.get_text()) for i in g.ax_heatmap.get_xticklabels()]
+        plt.clf()
+        heatmap = [heatmap[permutation[i]] for i in range(len(heatmap))]
+        for i, row in enumerate(heatmap):
+            heatmap[i] = [row[permutation[j]] for j in range(len(row))]
+        index_list = [ticks[permutation[i]] for i in range(len(ticks))] 
+        fig, ax = plt.subplots(figsize=(15, 15))
+        im = ax.imshow(heatmap)
+        fig.colorbar(im)
+        ax.set_xticks(range(len(index_list)), labels=index_list, rotation=45, ha="right", rotation_mode="anchor")
+        ax.set_yticks(range(len(index_list)), labels=index_list)
+        plt.tight_layout()
+        p = os.path.join(plots_dir, corr_mode + "_clustermap_" + corr_type + ".png")
+        plt.savefig(p)
+        plt.clf()
 
 
 def colored_cell(v):
@@ -158,10 +247,8 @@ if not os.path.isdir(plots_dir):
     os.makedirs(plots_dir)
 
 
-base_dirs = ["../data/evonaps_dna"]
+base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove", "../data/grove_modificated"]
 plot_tree_sizes(base_dirs, plots_dir)
-
-
 
 index_types = {"node_indices":[
           "colless_index",
@@ -238,10 +325,44 @@ for i, (index_type, indices) in enumerate(index_types.items()):
     colors += len(indices) * [i]
     labels += len(indices) * [index_type]
 
-#size_correlation_table(all_indices, plots_dir)
-#plot_kurtosis(all_indices, plots_dir, "_all", colors, labels)
-plot_iqr(all_indices, plots_dir, "_all", colors, labels)
+size_correlation_table(all_indices, plots_dir)
+plot_kurtosis(all_indices, plots_dir, "_all", colors, labels)
+#plot_iqr(all_indices, plots_dir, "_all", colors, labels)
 
-#plot_correlations("database", all_indices_gaps, plots_dir)
+plot_correlations("database", all_indices_gaps, plots_dir)
+plot_clustermap("database", all_indices_gaps, plots_dir)
 #plot_correlations("rerooting", all_indices_gaps, plots_dir)
+
+print_unrooted_percentiles()
+
+
+index_types_small = {"node_indices":["colless_index"],
+"I_based_indices":[],
+"depth_indices": ["sackin_index"],
+"width_indices" : [],
+"structure_indices" : [],
+"subgraph_indices": ["cherry_index"],
+"distance_indices" : ["diameter"],
+"network_indices": [],
+"root_indices": ["root_imbalance"],
+#"ranking_indices" : ["colijn_plazotta_rank",
+#          "furnas_rank"]
+}
+
+
+
+
+all_indices = []
+all_indices_gaps = []
+colors = []
+labels = []
+
+for i, (index_type, indices) in enumerate(index_types_small.items()):
+    all_indices += indices
+    all_indices_gaps += indices
+    all_indices_gaps.append("")
+    colors += len(indices) * [i]
+    labels += len(indices) * [index_type]
+
+plot_kurtosis(all_indices, plots_dir, "_small", colors, labels)
 

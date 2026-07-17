@@ -70,8 +70,8 @@ index_types = {"node_indices":[
           "minimum_farness"],
 "root_indices": ["root_imbalance",
           "I_root"],
-#"ranking_indices" : ["colijn_plazotta_rank",
-#          "furnas_rank"]
+"ranking_indices" : [#"colijn_plazotta_rank",
+          "furnas_rank"]
 }
 
 
@@ -226,12 +226,13 @@ def get_stats_lwr(df, index):
     values = list(df[index])
     max_1 = values[0]
     max_2 = values[1]
+    max_3 = values[2]
     weighted_mean = 0
     for i, row in df.iterrows():
         if row[index] == row[index]:
             weighted_mean += row["LWR"] * row[index]
     mean = np.nanmean(values)
-    return [max_1, max_2, mean, weighted_mean]
+    return [max_1, max_2, max_3, mean, weighted_mean]
 
 def plot_lwr(simulated_base_dir, lwr_res_path):
     plots_dir = "plots"
@@ -312,12 +313,15 @@ def stats_table(res_path, stats_path):
     print(tab)
 
 def rank(value, values):
-    smaller = len([v for v in values if v < value])
-    equal = len([v for v in values if v  == value])
-    return round(((smaller + (equal / 2)) / len(values)) * 100)
+    count_leq = sum(x <= value for x in values)
+    percentile = count_leq / len(values)
+    return percentile
+    #smaller = len([v for v in values if v < value])
+    #equal = len([v for v in values if v  == value]) - 1
+    #return round(((smaller + (equal / 2)) / len(values)) * 100) 
 
 
-def ranking_analysis(simulated_base_dir, emp_res_path):
+def ranking_analysis(simulated_base_dir, emp_res_path, emp_tab_path):
     results_dir = os.path.join(simulated_base_dir, "treeshapy")
     all_data = {index : [] for index in INDICES}
     for fn in os.listdir(results_dir):
@@ -332,13 +336,54 @@ def ranking_analysis(simulated_base_dir, emp_res_path):
         values_simulated = all_data[index]
         stats_lwr = get_stats_lwr(df, index)
         res.append([index] + [rank(stat, values_simulated) for stat in stats_lwr])
-    tab = tabulate(res, headers = ["index", "max_1", "max_2", "mean", "weighted_mean"], tablefmt = "pipe")
+    res_df = pd.DataFrame(res, columns = ["index", "max_1", "max_2", "max_3", "mean", "weighted_mean"])
+    res_df.to_csv(emp_tab_path, sep = "\t")
+
+def high_diff(row):
+    t = 0.1
+    return abs(row[1] - row[2]) > t or abs(row[1] - row[3]) > t or abs(row[2] - row[3]) > t
+
+def ranking_table(emp_tab_path):
+    df = pd.read_csv(os.path.join(emp_tab_path), sep = "\t")
+    df = df.drop("Unnamed: 0", axis = 1)
+    res = [list(row) for _, row in df.iterrows()]
+    for row in res:
+        row[0] = "\codeword{" + row[0] + "}"
+        highlight  = high_diff(row)
+        for i in range(1, len(row)):
+            if highlight and i <= 3:
+                row[i] = "$\mathbf{" + str(round(row[i], 3)) + "}$"
+            else:
+                row[i] = "$" + str(round(row[i], 3)) + "$"
+    tab = tabulate(res, headers = df.columns, tablefmt = "latex_raw")
     print(tab)
 
+def print_trees(lwr_tree_path):
+    tree = Tree(lwr_tree_path)
+    lwr_dict = {}
+    inner_node_id = 0
+    num_leaves = len(list([l for l in tree.iter_leaves()]))
+    i = 0
+    for l in tree.iter_leaves():
+        l.add_feature("Data", i/num_leaves)
+        i += 1
+    for node in tree.traverse():
+        if not node.is_leaf():
+            node.name = str(inner_node_id)
+            inner_node_id += 1
+        try:
+            lwr_dict[node.name] = node.LWR
+        except:
+            print(node.name)
+    lwr_dict = dict(sorted(lwr_dict.items(), key=lambda item: item[1], reverse = True))
+    for name, lwr in list(lwr_dict.items())[:3]:
+        print(lwr)
+        tree.set_outgroup(tree&name)
+        print(tree.write())
 
-base_dirs = ["simulated_x_34"]#, "spiders"]
-for base_dir in base_dirs:
-    root_trees(base_dir)
+#base_dirs = ["simulated_34"]
+#for base_dir in base_dirs:
+    #root_trees(base_dir)
     #evaluate_indices(base_dir)
 
 #evaluate_indices_lwr("spiders/mitocondrial_opt_brlen.tree.lwr.tree", "spiders/treeshapy")
@@ -346,4 +391,8 @@ for base_dir in base_dirs:
 #plot(base_dirs)
 #stats_simulated("simulated_34")
 #stats_table("spiders/treeshapy/mitocondrial_opt_brlen.tree.lwr_res.tsv", "simulated_34/stats.tsv")
-#ranking_analysis("simulated_34", "spiders/treeshapy/mitocondrial_opt_brlen.tree.lwr_res.tsv")
+#ranking_analysis("simulated_34", "spiders/treeshapy/mitocondrial_opt_brlen.tree.lwr_res.tsv", "ranks.tsv")
+ranking_table("ranks.tsv")
+
+
+#print_trees("spiders/mito/rd.lwr.tree")

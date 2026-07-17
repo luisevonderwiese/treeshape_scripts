@@ -1,4 +1,4 @@
-set = "evonaps_aa"
+set = "evonaps_dna" #"evonaps_aa" #"grove" #"grove_modificated"
 outdir = paste("../data/", set, "/treestats/", sep = "")
 if (!file.exists(outdir)){
 	dir.create(file.path(outdir))
