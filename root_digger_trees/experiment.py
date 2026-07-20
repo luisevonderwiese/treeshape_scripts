@@ -199,118 +199,18 @@ def evaluate_indices_lwr(lwr_tree_path, res_dir):
             outfile.write("\t".join([str(v) for v in res]))
             outfile.write("\n")
 
-def plot(base_dirs):
-    plots_dir = "plots"
-
-    if not os.path.isdir(plots_dir):
-        os.makedirs(plots_dir)
-    for index in INDICES:
-        print(index)
-        data = []
-        for base_dir in base_dirs:
-            row = []
-            results_dir = os.path.join(base_dir, "treeshapy")
-            for fn in os.listdir(results_dir):
-                df = pd.read_csv(os.path.join(results_dir, fn), sep = "\t")
-                row += list(df[index])
-            data.append(row)
-        ax = seaborn.boxplot(data = data)
-        ax.set_xticklabels(base_dirs)
-        plt.xticks(rotation=90)
-        plt.ylabel(index)
-        plt.savefig(os.path.join(plots_dir, "box_" + index + ".png"))
-        plt.clf()
-
 
 def get_stats_lwr(df, index):
     values = list(df[index])
     max_1 = values[0]
     max_2 = values[1]
-    max_3 = values[2]
     weighted_mean = 0
     for i, row in df.iterrows():
         if row[index] == row[index]:
             weighted_mean += row["LWR"] * row[index]
     mean = np.nanmean(values)
-    return [max_1, max_2, max_3, mean, weighted_mean]
+    return [max_1, max_2, mean, weighted_mean]
 
-def plot_lwr(simulated_base_dir, lwr_res_path):
-    plots_dir = "plots"
-    if not os.path.isdir(plots_dir):
-        os.makedirs(plots_dir)
-    lwr_df = pd.read_csv(lwr_res_path, sep = "\t")
-    lwr_df.sort_values(by = ["LWR"], inplace = True, ascending = False)
-    results_dir = os.path.join(simulated_base_dir, "treeshapy")
-    for index in INDICES:
-        print(index)
-        data = [[]]
-        for fn in os.listdir(results_dir):
-            df = pd.read_csv(os.path.join(results_dir, fn), sep = "\t")
-            data[0] += list(df[index])
-        plt.figure(figsize=(5, 10))
-        ax = seaborn.boxplot(data = data)
-        colors = ['green', 'blue', 'red', "gray"]
-        stats = stats_lwr(lwr_df, index)
-        for i, stat in enumerate(stats):
-            ax.axhline(y = stat, color = colors[i], linestyle = "--")
-        plt.ylabel(index)
-        plt.savefig(os.path.join(plots_dir, "box_" + index + "_lwr.png"))
-        plt.clf()
-        plt.close()
-
-
-def get_kurtosis(values):
-    values = [v for v in values if v == v]
-    mean = sum(values) / len(values)
-    try:
-        s_quad = sum([math.pow(v - mean, 4) for v in values])
-        s_squared = sum([math.pow((v - mean), 2) for v in values])
-    except OverflowError:
-        return float("nan")
-    if s_squared == 0:
-        return 1
-    else:
-        try:
-            return len(values) * (s_quad / math.pow(s_squared, 2))
-        except OverflowError:
-            return float("nan")
-
-def get_iqr(values):
-    Q3 = np.quantile(values, 0.9)
-    Q1 = np.quantile(values, 0.1)
-    return Q3 - Q1
-
-def stats_simulated(base_dir):
-    results_dir = os.path.join(base_dir, "treeshapy")
-    all_data = {index : [] for index in INDICES}
-    for fn in os.listdir(results_dir):
-        res_path = os.path.join(results_dir, fn)
-        df = pd.read_csv(res_path, sep = "\t")
-        for index in INDICES:
-            all_data[index] += list(df[index])
-    iqrs = []
-    for index in INDICES:
-        iqrs.append([index, min(all_data[index]), max(all_data[index]), get_iqr(all_data[index])])
-    df = pd.DataFrame(iqrs, columns = ["index", "min", "max", "iqr"])
-    df.to_csv(os.path.join(base_dir, "stats.tsv"), sep = "\t")
-
-def stats_table(res_path, stats_path):
-    df = pd.read_csv(os.path.join(res_path), sep = "\t")
-    stats_df = pd.read_csv(os.path.join(stats_path), sep = "\t")
-    res = []
-    for index in INDICES:
-        stats_simulated = stats_df[stats_df["index"] == index].iloc[0]
-        stats_lwr = get_stats_lwr(df, index)
-        values = df[index].astype("float")
-        kurtosis = get_kurtosis(values)
-        iqr = get_iqr(values) / stats_simulated["iqr"]
-        max_1 = (stats_lwr[0] - stats_simulated["min"]) / (stats_simulated["max"] - stats_simulated["min"])
-        max_2 = (stats_lwr[1] - stats_simulated["min"]) / (stats_simulated["max"] - stats_simulated["min"])
-        mean = (stats_lwr[2] - stats_simulated["min"]) / (stats_simulated["max"] - stats_simulated["min"])
-        weighted_mean = (stats_lwr[3] - stats_simulated["min"]) / (stats_simulated["max"] - stats_simulated["min"])
-        res.append([index, kurtosis, iqr, max_1, max_2, mean, weighted_mean])
-    tab = tabulate(res, headers = ["index", "kurtosis", "iqr", "max_1", "max_2", "mean", "weighted_mean"], floatfmt = ".3f", tablefmt = "pipe")
-    print(tab)
 
 def rank(value, values):
     count_leq = sum(x <= value for x in values)
@@ -336,12 +236,8 @@ def ranking_analysis(simulated_base_dir, emp_res_path, emp_tab_path):
         values_simulated = all_data[index]
         stats_lwr = get_stats_lwr(df, index)
         res.append([index] + [rank(stat, values_simulated) for stat in stats_lwr])
-    res_df = pd.DataFrame(res, columns = ["index", "max_1", "max_2", "max_3", "mean", "weighted_mean"])
+    res_df = pd.DataFrame(res, columns = ["index", "max_1", "max_2", "mean", "weighted_mean"])
     res_df.to_csv(emp_tab_path, sep = "\t")
-
-def high_diff(row):
-    t = 0.1
-    return abs(row[1] - row[2]) > t or abs(row[1] - row[3]) > t or abs(row[2] - row[3]) > t
 
 def ranking_table(emp_tab_path):
     df = pd.read_csv(os.path.join(emp_tab_path), sep = "\t")
@@ -349,9 +245,9 @@ def ranking_table(emp_tab_path):
     res = [list(row) for _, row in df.iterrows()]
     for row in res:
         row[0] = "\codeword{" + row[0] + "}"
-        highlight  = high_diff(row)
+        highlight  = abs(row[1] - row[2]) > 0.1
         for i in range(1, len(row)):
-            if highlight and i <= 3:
+            if highlight and i <= 2:
                 row[i] = "$\mathbf{" + str(round(row[i], 3)) + "}$"
             else:
                 row[i] = "$" + str(round(row[i], 3)) + "$"
@@ -376,23 +272,21 @@ def print_trees(lwr_tree_path):
         except:
             print(node.name)
     lwr_dict = dict(sorted(lwr_dict.items(), key=lambda item: item[1], reverse = True))
-    for name, lwr in list(lwr_dict.items())[:3]:
+    for name, lwr in list(lwr_dict.items())[:2]:
         print(lwr)
         tree.set_outgroup(tree&name)
         print(tree.write())
 
-#base_dirs = ["simulated_34"]
+base_dirs = ["simulated_24"]
 #for base_dir in base_dirs:
-    #root_trees(base_dir)
-    #evaluate_indices(base_dir)
+#    root_trees(base_dir)
+#    evaluate_indices(base_dir)
 
-#evaluate_indices_lwr("spiders/mitocondrial_opt_brlen.tree.lwr.tree", "spiders/treeshapy")
-#plot_lwr("simulated_34", "spiders/treeshapy/mitocondrial_opt_brlen.tree.lwr_res.tsv")
-#plot(base_dirs)
-#stats_simulated("simulated_34")
-#stats_table("spiders/treeshapy/mitocondrial_opt_brlen.tree.lwr_res.tsv", "simulated_34/stats.tsv")
-#ranking_analysis("simulated_34", "spiders/treeshapy/mitocondrial_opt_brlen.tree.lwr_res.tsv", "ranks.tsv")
-ranking_table("ranks.tsv")
+if not os.path.isdir("receptor/treeshapy"):
+    os.makedirs("receptor/treeshapy")
+#evaluate_indices_lwr("receptor/rd.lwr.tree", "receptor/treeshapy")
+#ranking_analysis("simulated_24", "receptor/treeshapy/rd.lwr_res.tsv", "receptor/ranks.tsv")
+#ranking_table("receptor/ranks.tsv")
 
 
-#print_trees("spiders/mito/rd.lwr.tree")
+print_trees("receptor/rd.lwr.tree")

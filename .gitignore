@@ -9,7 +9,9 @@ covid/rooted/
 root_digger_trees/ben/
 root_digger_trees/plots/
 root_digger_trees/simulated*
-root_digger_trees/spiders/treeshapy
-root_digger_trees/spiders/rooted
+root_digger_trees/receptor/treeshapy
+root_digger_trees/receptor/rooted
+root_digger_trees/receptor/ranks.tsv
+root_digger_trees/old/
 
 scripts/old/

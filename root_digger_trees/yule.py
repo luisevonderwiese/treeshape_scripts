@@ -2,10 +2,10 @@ from ete3 import Tree
 import random
 import os
 
-tips = 34 
+tips = 24 
 trees = 100000
 
-outdir = os.path.join("simulated_x_" + str(tips), "unrooted")
+outdir = os.path.join("simulated_" + str(tips), "unrooted")
 if not os.path.isdir(outdir):
     os.makedirs(outdir)
 
