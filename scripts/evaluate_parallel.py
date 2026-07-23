@@ -4,7 +4,7 @@ import multiprocessing
 import copy
 import shutil
 from ete3 import Tree
-from treeshapy.treeshapy import TreeShape, INDICES, INDICES_UNROOTED
+from treeshapy import TreeShape, INDICES, INDICES_UNROOTED
 import treeshapy.util as treeshapy_util
 
 import util
@@ -64,6 +64,7 @@ def evaluate_indices(params):
     if os.path.isfile(times_path) and os.path.isfile(aresults_path) and os.path.isfile(rresults_max_path) and os.path.isfile(rresults_yule_path) and os.path.isfile(rresults_tips_path):
         return
     print(tree_name)
+    return
     for results_path in [times_path, aresults_path, rresults_max_path, rresults_yule_path, rresults_tips_path]:
         header = ["root", "root_type"]
         if results_path == times_path:
@@ -172,7 +173,7 @@ def evaluate_indices_no_precomp(params):
             outfile.write("\t".join([str(time) for time in times]))
             outfile.write("\n")
 
-base_dirs = ["../data/grove_modificated"]
+base_dirs = ["../data/grove"]
 for base_dir in base_dirs:
     print(base_dir)
     results_dir = os.path.join(base_dir, "treeshapy")

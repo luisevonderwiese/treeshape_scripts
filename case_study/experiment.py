@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn
 import copy
-from treeshapy.treeshapy import TreeShape, INDICES
+from treeshapy import TreeShape, INDICES
 from collections import Counter
 from tabulate import tabulate
 

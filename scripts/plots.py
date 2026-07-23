@@ -10,7 +10,7 @@ import seaborn
 
 import util
 
-from treeshapy.treeshapy import INDICES_UNROOTED
+from treeshapy import INDICES_UNROOTED
 
 
 

@@ -147,7 +147,7 @@ sampled_trees = sample_multifurcating_trees(
         max_children=5,
         multifurcation_prob=0.5,
         seed=123,
-        outdir = "test_multi/trees/rooted"
+        outdir = "../data/test_multi/trees/rooted"
     )
 print(
         "average multifurcating inner node ratio:",

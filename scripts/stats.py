@@ -7,7 +7,7 @@ from scipy import stats
 from tabulate import tabulate
 from ete3 import Tree
 
-from treeshapy.treeshapy import INDICES, INDICES_UNROOTED
+from treeshapy import INDICES, INDICES_UNROOTED
 
 import util
 

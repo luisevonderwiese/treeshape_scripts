@@ -2,7 +2,7 @@ import os
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from treeshapy.treeshapy import INDICES
+from treeshapy import INDICES
 import util
 
 def linear_time(base_dirs):

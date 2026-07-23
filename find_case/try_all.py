@@ -52,7 +52,7 @@ for dir_name in os.listdir(base_dir):
     lwr_tree_path = prefix + ".lwr.tree"
     if not os.path.isfile(lwr_tree_path):
         tree_path = os.path.join(base_dir, dir_name, "gtr_g_i.raxml.bestTree")
-        run_rd(msa_path, tree_path, prefix)
+        #run_rd(msa_path, tree_path, prefix)
     if not os.path.isfile(lwr_tree_path):
         print("no lwr tree")
         continue

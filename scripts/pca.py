@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from treeshapy.treeshapy import INDICES
+from treeshapy import INDICES
 
 import numpy as np
 import matplotlib.pyplot as plt

@@ -2,7 +2,7 @@ import os
 import shutil
 import time
 from ete3 import Tree
-from treeshapy.treeshapy import TreeShape, INDICES, INDICES_UNROOTED
+from treeshapy import TreeShape, INDICES, INDICES_UNROOTED
 import treeshapy.util as treeshapy_util
 
 import util
@@ -40,4 +40,4 @@ def evaluate_indices(d):
 
 
 
-evaluate_indices("../test/test_multi")
+evaluate_indices("../data/test_multi")
