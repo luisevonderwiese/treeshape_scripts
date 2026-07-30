@@ -7,11 +7,24 @@ from scipy import stats
 from tabulate import tabulate
 from ete3 import Tree
 
-from treeshapy import INDICES, INDICES_UNROOTED
+from treeshapy import INDICES
 
 import util
 
 large_value_indices = ["furnas_rank", "colijn_plazotta_rank"]
+
+
+INDICES_UNROOTED = ["diameter",
+          "area_per_pair_index",
+          "wiener_index",
+          "maximum_closeness",
+          "minimum_farness",
+          "maximum_farness",
+          "total_farness",
+          "minimum_bcent",
+          "maximum_bcent",
+          "mean_bcent",
+          "bcent_variance"]
 
 def not_nan(v):
     return [val for val in v if val == val and not isinstance(val, str)]

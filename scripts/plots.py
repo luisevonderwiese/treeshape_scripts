@@ -10,8 +10,17 @@ import seaborn
 
 import util
 
-from treeshapy import INDICES_UNROOTED
-
+INDICES_UNROOTED = ["diameter",
+          "area_per_pair_index",
+          "wiener_index",
+          "maximum_closeness",
+          "minimum_farness",
+          "maximum_farness",
+          "total_farness",
+          "minimum_bcent",
+          "maximum_bcent",
+          "mean_bcent",
+          "bcent_variance"]
 
 
 def plot_tree_sizes(base_dirs, plots_dir):
@@ -255,8 +264,8 @@ index_types = {"node_indices":[
           "corrected_colless_index",
           "quadratic_colless_index",
           "I_2_index",
-          "stairs2",
           "stairs1",
+          "stairs2",
           "j1",
           "rogers_j_index",
           "symmetry_nodes_index"],
@@ -271,9 +280,9 @@ index_types = {"node_indices":[
           "total_internal_path_length",
           "average_vertex_depth",
           "average_leaf_depth",
-          "s_shape",
-          "maximum_depth",
           "variance_of_leaves_depths",
+          "maximum_depth",
+          "s_shape",
           "B_1_index",
           "B_2_index" ],
 "width_indices" : ["maximum_width",
@@ -295,16 +304,16 @@ index_types = {"node_indices":[
 "distance_indices" : ["total_cophenetic_index",
           "diameter",
           "area_per_pair_index"],
-"network_indices": [          "wiener_index",
-          "total_farness",
-          "mean_bcent",
-          "bcent_root",
+"network_indices": ["wiener_index",
+          "maximum_closeness",
+          "minimum_farness",
           "maximum_farness",
+          "total_farness",
           "minimum_bcent",
           "maximum_bcent",
+          "mean_bcent",
           "bcent_variance",
-          "maximum_closeness",
-          "minimum_farness"],
+          "bcent_root"],
 "root_indices": ["root_imbalance",
           "I_root"],
 #"ranking_indices" : ["colijn_plazotta_rank",

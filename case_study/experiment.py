@@ -13,73 +13,9 @@ from collections import Counter
 from tabulate import tabulate
 
 
-index_types = {"node_indices":[
-          "colless_index",
-          "corrected_colless_index",
-          "quadratic_colless_index",
-          "I_2_index",
-          "stairs2",
-          "stairs1",
-          "j1",
-          "rogers_j_index",
-          "symmetry_nodes_index"],
-"I_based_indices":["mean_I",
-          "mean_I_prime",
-          "mean_I_w",
-          "total_I",
-          "total_I_prime",
-          "total_I_w"],
-"depth_indices": ["sackin_index",
-          "total_path_length",
-          "total_internal_path_length",
-          "average_vertex_depth",
-          "average_leaf_depth",
-          "s_shape",
-          "maximum_depth",
-          "variance_of_leaves_depths",
-          "B_1_index",
-          "B_2_index" ],
-"width_indices" : ["maximum_width",
-          "maxdiff_widths",
-          "modified_maxdiff_widths",
-          "max_width_over_max_depth"],
-"structure_indices" : [
-          "d_index",
-          "rooted_quartet_index",
-          "average_ladder",
-          "ladder_length",
-          ],
-"subgraph_indices": ["cherry_index",
-          "modified_cherry_index",
-          "IL_number",
-          "pitchforks",
-          "four_caterpillars",
-          "double_cherries"],
-"distance_indices" : ["total_cophenetic_index",
-          "diameter",
-          "area_per_pair_index"],
-"network_indices": [          "wiener_index",
-          "total_farness",
-          "mean_bcent",
-          "bcent_root",
-          "maximum_farness",
-          "minimum_bcent",
-          "maximum_bcent",
-          "bcent_variance",
-          "maximum_closeness",
-          "minimum_farness"],
-"root_indices": ["root_imbalance",
-          "I_root"],
-"ranking_indices" : [#"colijn_plazotta_rank",
-          "furnas_rank"]
-}
 
-
-
-INDICES = []
-
-for i, (index_type, indices) in enumerate(index_types.items()):
-    INDICES += indices
+INDICES.remove("colijn_plazotta_rank")
+INDICES.remove("furnas_rank")
 
 def root_trees(base_dir):
     unrooted_trees_dir = os.path.join(base_dir, "unrooted")
@@ -140,9 +76,9 @@ def evaluate_indices(base_dir):
             root_type = parts[0]
 
             res = []
-            ts = TreeShape(rooted_tree, "BINARY")
+            ts = TreeShape(rooted_tree, binary = True, rooted = True)
             for index_name in INDICES:
-                v = ts.absolute(index_name)
+                v = ts.evaluate(index_name)
                 res.append(v)
 
             with open(res_path, "a") as outfile:
@@ -189,9 +125,9 @@ def evaluate_indices_lwr(lwr_tree_path, res_dir):
             new_tree = label_inner(new_tree, inner_root_id)
             new_tree.set_outgroup(new_tree&str(inner_root_id -1))
         res = []
-        ts = TreeShape(new_tree, "BINARY")
+        ts = TreeShape(new_tree, binary = True)
         for index_name in INDICES:
-            v = ts.absolute(index_name)
+            v = ts.evalute(index_name)
             res.append(v)
         with open(res_path, "a") as outfile:
             outfile.write("\t".join([root, root_type, node.LWR]))
@@ -285,8 +221,8 @@ base_dirs = ["simulated_24"]
 if not os.path.isdir("receptor/treeshapy"):
     os.makedirs("receptor/treeshapy")
 #evaluate_indices_lwr("receptor/rd.lwr.tree", "receptor/treeshapy")
-#ranking_analysis("simulated_24", "receptor/treeshapy/rd.lwr_res.tsv", "receptor/ranks.tsv")
-#ranking_table("receptor/ranks.tsv")
+ranking_analysis("simulated_24", "receptor/treeshapy/rd.lwr_res.tsv", "receptor/ranks.tsv")
+ranking_table("receptor/ranks.tsv")
 
 
-print_trees("receptor/rd.lwr.tree")
+#print_trees("receptor/rd.lwr.tree")

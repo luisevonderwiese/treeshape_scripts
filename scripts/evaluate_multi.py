@@ -2,7 +2,7 @@ import os
 import shutil
 import time
 from ete3 import Tree
-from treeshapy import TreeShape, INDICES, INDICES_UNROOTED
+from treeshapy import TreeShape, INDICES
 import treeshapy.util as treeshapy_util
 
 import util
@@ -29,9 +29,9 @@ def evaluate_indices(d):
         tree_path = os.path.join(rooted_trees_dir, tree_fn)
         rooted_tree = Tree(tree_path)
 
-        ts = TreeShape(rooted_tree, "ARBITRARY")
+        ts = TreeShape(rooted_tree, binary = False, rooted = True)
             
-        results_absolute = ts.all_absolute()
+        results_absolute = ts.evaluate("all")
 
         
         with open(results_path, "a") as outfile:

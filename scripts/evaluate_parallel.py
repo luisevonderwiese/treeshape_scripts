@@ -4,11 +4,23 @@ import multiprocessing
 import copy
 import shutil
 from ete3 import Tree
-from treeshapy import TreeShape, INDICES, INDICES_UNROOTED
+from treeshapy import TreeShape, INDICES
 import treeshapy.util as treeshapy_util
 
 import util
 
+
+INDICES_UNROOTED = ["diameter",
+          "area_per_pair_index",
+          "wiener_index",
+          "maximum_closeness",
+          "minimum_farness",
+          "maximum_farness",
+          "total_farness",
+          "minimum_bcent",
+          "maximum_bcent",
+          "mean_bcent",
+          "bcent_variance"]
 
 def evaluate_indices_unrooted(params):
     base_dir = params[0]
@@ -31,11 +43,11 @@ def evaluate_indices_unrooted(params):
     tree_path = os.path.join(unrooted_trees_dir, tree_name)
     tree = Tree(tree_path)
 
-    ts = TreeShape(tree, "BINARY", rooted = False)
+    ts = TreeShape(tree, binary = True, rooted = False)
 
-    results_absolute = ts.all_absolute()
+    results_absolute = ts.evaluate("all")
     print(results_absolute)
-    results_relative_tips = ts.all_relative("TIPS")
+    results_relative_tips = ts.evaluate("all", "REL_TIPS")
 
     with open(aresults_path, "a") as outfile:
         outfile.write("\t".join([str(results_absolute[index]) for index in INDICES_UNROOTED]))
@@ -93,20 +105,20 @@ def evaluate_indices(params):
         end = time.time()
         precomputation_time = end - start
 
-        ts = TreeShape(rooted_tree, "BINARY")
+        ts = TreeShape(rooted_tree, binary = True, rooted = True)
             
         times = [precomputation_time]
         for index_name in INDICES:
             start = time.time()
-            ts.absolute(index_name)
+            ts.evaluate(index_name)
             end = time.time()
             times.append(end - start)
 
 
-        results_absolute = ts.all_absolute()
-        results_relative_max = ts.all_relative("MAX")
-        results_relative_yule = ts.all_relative("YULE")
-        results_relative_tips = ts.all_relative("TIPS")
+        results_absolute = ts.evaluate("all")
+        results_relative_max = ts.evaluate("all", "REL_MAX")
+        results_relative_yule = ts.evaluate("all", "REL_YULE")
+        results_relative_tips = ts.evaluate("all", "REL_TIPS")
             
         with open(times_path, "a") as outfile:
             outfile.write("\t".join([root, root_type]))
@@ -161,9 +173,9 @@ def evaluate_indices_no_precomp(params):
         times = []
         for index_name in INDICES:
             current_tree = copy.deepcopy(rooted_tree)
-            ts = TreeShape(current_tree, "BINARY")
+            ts = TreeShape(current_tree, binary = True, rooted = True)
             start = time.time()
-            ts.absolute(index_name)
+            ts.evaluate(index_name)
             end = time.time()
             times.append(end - start)
 
