@@ -96,7 +96,7 @@ def determine_max_min(base_dirs):
     maxs = {index : 0 for index in INDICES}
     
     for base_dir in base_dirs:
-        results_dir = os.path.join(base_dir, "treeshapy_clean")
+        results_dir = os.path.join(base_dir, "treeshapy")
         for tree_name in util.unrooted_tree_names(base_dir):
             df_path = os.path.join(results_dir, tree_name + "_absolute.tsv")
             if not os.path.isfile(df_path):
@@ -124,7 +124,7 @@ def determine_database_variances(base_dirs):
     all_values = {index : [] for index in INDICES}
 
     for base_dir in base_dirs:
-        results_dir = os.path.join(base_dir, "treeshapy_clean")
+        results_dir = os.path.join(base_dir, "treeshapy")
         for tree_name in util.unrooted_tree_names(base_dir):
             df_path = os.path.join(results_dir, tree_name + "_absolute.tsv")
             if not os.path.isfile(df_path):
@@ -171,7 +171,7 @@ def get_iqr(values, index):
 def determine_unrooted_stats(base_dirs):
     print("determining unrooted stats")
     for base_dir in base_dirs:
-        results_dir = os.path.join(base_dir, "treeshapy_clean")
+        results_dir = os.path.join(base_dir, "treeshapy")
         unrooted_stats_dir = os.path.join(base_dir, "unrooted_stats")
         if not os.path.isdir(unrooted_stats_dir):
             os.makedirs(unrooted_stats_dir)
@@ -203,7 +203,7 @@ def determine_unrooted_stats(base_dirs):
 def determine_stats(base_dirs):
     print("determining stats")
     for base_dir in base_dirs:
-        results_dir = os.path.join(base_dir, "treeshapy_clean")
+        results_dir = os.path.join(base_dir, "treeshapy")
         stats_dir = os.path.join(base_dir, "stats")
         if not os.path.isdir(stats_dir):
             os.makedirs(stats_dir)
@@ -262,7 +262,7 @@ def determine_rerooting_correlations(base_dirs):
             correlations[index1][index2] = []
     
     for base_dir in base_dirs:
-        results_dir = os.path.join(base_dir, "treeshapy_clean")
+        results_dir = os.path.join(base_dir, "treeshapy")
         for tree_name in util.unrooted_tree_names(base_dir):
             df_path = os.path.join(results_dir, tree_name + "_absolute.tsv")
             if not os.path.isfile(df_path):
@@ -286,7 +286,7 @@ def determine_database_correlations(base_dirs):
     print("determine database correlations")
     all_values = {index : [] for index in INDICES}
     for base_dir in base_dirs:
-        results_dir = os.path.join(base_dir, "treeshapy_clean")
+        results_dir = os.path.join(base_dir, "treeshapy")
         for tree_name in util.unrooted_tree_names(base_dir):
             df_path = os.path.join(results_dir, tree_name + "_absolute.tsv")
             if not os.path.isfile(df_path):
@@ -335,7 +335,7 @@ def determine_size_correlations(base_dirs, mode):
     corr_df = pd.DataFrame({"index" : INDICES})
     for base_dir in base_dirs:
         sizes_df = pd.read_csv(os.path.join(base_dir, "tree_sizes.tsv"), sep = "\t")
-        results_dir = os.path.join(base_dir, "treeshapy_clean")
+        results_dir = os.path.join(base_dir, "treeshapy")
         for tree_name in util.unrooted_tree_names(base_dir):
             df_path = os.path.join(results_dir, tree_name + "_" + mode + ".tsv")
             if not os.path.isfile(df_path):
@@ -366,7 +366,7 @@ def gather_results(base_dirs, mode):
     for base_dir in base_dirs:
         sizes_df = pd.read_csv(os.path.join(base_dir, "tree_sizes.tsv"), sep = "\t")
         sizes_df = sizes_df.astype({"tree_name": str})
-        results_dir = os.path.join(base_dir, "treeshapy_clean")
+        results_dir = os.path.join(base_dir, "treeshapy")
         for tree_name in util.unrooted_tree_names(base_dir):
             try:
                 tree_size = sizes_df[sizes_df["tree_name"] == tree_name].iloc[0]["num_tips"]

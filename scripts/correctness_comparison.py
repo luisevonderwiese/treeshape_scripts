@@ -10,7 +10,7 @@ epsilon = 0.001
 sys.set_int_max_str_digits(110000)
 
 def check(base_dir, reference):
-    python_dir = os.path.join(base_dir, "treeshapy_clean")
+    python_dir = os.path.join(base_dir, "treeshapy")
     R_dir = os.path.join(base_dir, reference)
     fail_counts = {}
     affected_datasets = set()

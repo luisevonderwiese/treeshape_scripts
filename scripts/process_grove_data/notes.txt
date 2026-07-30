@@ -1,0 +1,3 @@
+The script modify_grove.py (accidently) removed toplevel trifurcations of the trees and added and implicit root.
+Because of that, one branch was considered twice when rooting the tree in all possible positions.
+This affects the results of treeshapy, which is undone by clean_treeshapy_results.py

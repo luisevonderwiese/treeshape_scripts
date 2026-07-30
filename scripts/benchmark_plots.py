@@ -58,7 +58,7 @@ def comparison_plots(base_dirs, reference, suffix):
     for base_dir in base_dirs:
         sizes_df = pd.read_csv(os.path.join(base_dir, "tree_sizes.tsv"), sep = "\t")
         sizes_df = sizes_df.astype({"tree_name": str})
-        python_dir = os.path.join(base_dir, "treeshapy_clean")
+        python_dir = os.path.join(base_dir, "treeshapy")
         R_dir = os.path.join(base_dir, reference)
         for tree_name in util.unrooted_tree_names(base_dir):
             tree_size = sizes_df[sizes_df["tree_name"] == tree_name].iloc[0]["num_tips"]
