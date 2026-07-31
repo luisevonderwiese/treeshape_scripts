@@ -1,4 +1,4 @@
-name: treeshape 
+name: treeshape-scripts 
 channels:
   - conda-forge
   - anaconda
@@ -6,7 +6,12 @@ dependencies:
   - tabulate
   - ete3
   - pandas
+  - numpy
+  - scipy
+  - seaborn
   - matplotlib
+  - scikit-learn
   - pip
-    #- pip:
-    #- treeshape
+  - pip:
+  # - treeshapy
+   
