@@ -7,7 +7,7 @@ conda env create -f environment.yml
 conda acitvate treeshape-scripts
 ```
 - Data: <br>
-Load all trees from [EvoNAPS](). Place trees inferred for DNA data in `data/evonaps_dna/trees/unrooted`. Place trees inferred for AA data in `data/evonaps_aa/trees/unrooted`. <br>
+Load all trees from [EvoNAPS](https://github.com/Cibiv/EvoNAPS). Place trees inferred for DNA data in `data/evonaps_dna/trees/unrooted`. Place trees inferred for AA data in `data/evonaps_aa/trees/unrooted`. <br>
 Load all trees from [RAxMLGrove](https://github.com/angtft/RAxMLGrove). Place them in `data/grove/trees/unrooted`.
 
 

@@ -336,11 +336,9 @@ for i, (index_type, indices) in enumerate(index_types.items()):
 
 size_correlation_table(all_indices, plots_dir)
 plot_kurtosis(all_indices, plots_dir, "_all", colors, labels)
-#plot_iqr(all_indices, plots_dir, "_all", colors, labels)
 
 plot_correlations("database", all_indices_gaps, plots_dir)
 plot_clustermap("database", all_indices_gaps, plots_dir)
-#plot_correlations("rerooting", all_indices_gaps, plots_dir)
 
 print_unrooted_percentiles()
 

@@ -35,6 +35,7 @@ def root_trees(base_dir):
                 outfile.write(tree.write())
 
 
-#root_trees("../data/evonaps_dna")
-#root_trees("../data/evonaps_aa")
+root_trees("../data/evonaps_dna")
+root_trees("../data/evonaps_aa")
+root_trees("../data/grove")
 root_trees("../data/grove_modificated")

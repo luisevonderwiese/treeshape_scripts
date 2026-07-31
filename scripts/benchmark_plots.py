@@ -99,11 +99,7 @@ def comparison_plots(base_dirs, reference, suffix):
 
 base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove", "../data/grove_modificated"]
 
-#linear_time(base_dirs)
 comparison_plots(base_dirs, "treestats", "")
-#comparison_plots(base_dirs, "treebalance", "")
-#comparison_plots(base_dirs, "treestats", "_no_precomp")
-#comparison_plots(base_dirs, "treebalance", "_no_precomp")
 
 
 

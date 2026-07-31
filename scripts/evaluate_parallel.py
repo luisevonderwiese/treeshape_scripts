@@ -185,7 +185,7 @@ def evaluate_indices_no_precomp(params):
             outfile.write("\t".join([str(time) for time in times]))
             outfile.write("\n")
 
-base_dirs = ["../data/grove"]
+base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove", "../data/grove_modificated"]
 for base_dir in base_dirs:
     print(base_dir)
     results_dir = os.path.join(base_dir, "treeshapy")
@@ -194,14 +194,8 @@ for base_dir in base_dirs:
 
     tree_names = [(base_dir, tree_name) for tree_name in util.unrooted_tree_names(base_dir)]
     tree_paths = [(base_dir, tree_name) for tree_name in os.listdir(os.path.join(base_dir, "trees/unrooted"))]
-    #tree_names = ['65402', '65459', '61374', '65915', '51508', '65947', '65216', '43451', '40037', '65924', '65914', '65948', '63626']
-    #tree_paths = ['65402.newick', '65459.newick', '61374.newick', '65915.newick', '51508.newick', '65947.newick', '65216.newick', '43451.newick', '40037.newick', '65924.newick', '65914.newick', '65948.newick', '63626.newick']
-    #tree_names = [(base_dir, n) for n in tree_names]
-    #tree_paths = [(base_dir, n) for n in tree_paths]
     num_cpu = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(processes=num_cpu - 4)
-    #pool = multiprocessing.Pool(13)
-    #pool.map(evaluate_indices_unrooted, tree_paths)
     pool.map(evaluate_indices, tree_names)
         
 

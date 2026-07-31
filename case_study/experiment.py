@@ -214,15 +214,15 @@ def print_trees(lwr_tree_path):
         print(tree.write())
 
 base_dirs = ["simulated_24"]
-#for base_dir in base_dirs:
-#    root_trees(base_dir)
-#    evaluate_indices(base_dir)
+for base_dir in base_dirs:
+    root_trees(base_dir)
+    evaluate_indices(base_dir)
 
 if not os.path.isdir("receptor/treeshapy"):
     os.makedirs("receptor/treeshapy")
-#evaluate_indices_lwr("receptor/rd.lwr.tree", "receptor/treeshapy")
+evaluate_indices_lwr("receptor/rd.lwr.tree", "receptor/treeshapy")
 ranking_analysis("simulated_24", "receptor/treeshapy/rd.lwr_res.tsv", "receptor/ranks.tsv")
 ranking_table("receptor/ranks.tsv")
 
 
-#print_trees("receptor/rd.lwr.tree")
+print_trees("receptor/rd.lwr.tree")

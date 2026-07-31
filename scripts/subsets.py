@@ -37,3 +37,4 @@ def minimum_subsets():
         selected_indices = find_low_correlation_subset(correlation_df, i)
         print(selected_indices)
 
+#minimum_subsets()
