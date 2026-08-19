@@ -4,7 +4,9 @@ import numpy as np
 import pandas as pd
 from tabulate import tabulate
 from ete3 import Tree
+import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 from collections import Counter
 import seaborn
 
@@ -24,6 +26,7 @@ INDICES_UNROOTED = ["diameter",
 
 
 def plot_tree_sizes(base_dirs, plots_dir):
+    matplotlib.rcParams.update({'font.size': 8})
     sizes = []
     nums = []
     for base_dir in base_dirs:
@@ -39,8 +42,10 @@ def plot_tree_sizes(base_dirs, plots_dir):
     plt.xscale("log")
     plt.xlabel("num tips")
     plt.ylabel("num trees")
+    fig = plt.gcf()
+    fig.set_size_inches(5.2, 3)
     base_dir_name = base_dir.split(os.sep)[-1]
-    plt.savefig(os.path.join(plots_dir, "tree_sizes.png"))
+    plt.savefig(os.path.join(plots_dir, "tree_sizes.eps"), dpi = 300, bbox_inches = "tight")
     plt.clf()
 
     total_unrooted = sum([n[1] for n in nums])
@@ -52,6 +57,7 @@ def plot_tree_sizes(base_dirs, plots_dir):
 
 
 def plot_kurtosis(selected_indices, plots_dir, suffix = "", colors = None, labels = None):
+    matplotlib.rcParams.update({'font.size': 6})
     modes = ["kurtosis", "kurtosis_int", "kurtosis_ext"]
     borders = [0, 13, 25, 39, 54] 
     if colors is not None:
@@ -63,9 +69,14 @@ def plot_kurtosis(selected_indices, plots_dir, suffix = "", colors = None, label
         for index in selected_indices:
             data.append(df[index])
         data = [[el for el in l if not (el is float("nan") or el is float("inf") or el is float("-inf") or el == 0)] for l in data]
+
         if suffix != "_small":
-            fig, axes = plt.subplots(nrows=4, ncols = 1, figsize=(40, 50))
+            #fig, axes = plt.subplots(nrows=4, ncols = 1, figsize=(40, 50))
+            fig, axes = plt.subplots(nrows=4, ncols = 1, figsize=(7.5, 8.75))
             ax_list = axes.flat
+            selected_label_dict = {}
+            done_labels = []
+
         else:
             fig, axes = plt.subplots(nrows=1, ncols = 1, figsize=(15, 7))
             ax_list = [axes]
@@ -74,25 +85,63 @@ def plot_kurtosis(selected_indices, plots_dir, suffix = "", colors = None, label
                 sub_data = data[borders[idx]:borders[idx + 1]]
                 sub_colors = colors[borders[idx]:borders[idx + 1]]
                 sub_ticks = selected_indices[borders[idx]:borders[idx + 1]]
+                sub_labels = labels[borders[idx]:borders[idx + 1]]
             else:
                 sub_data = data
                 sub_colors = colors
                 sub_ticks = selected_indices
             if colors is not None:
-                seaborn.boxplot(data = sub_data, palette = sub_colors, ax = ax, log_scale = True)
+                seaborn.boxplot(data = sub_data, 
+                                palette = sub_colors, 
+                                ax = ax, 
+                                log_scale = True, 
+                                linewidth = 0.2,
+                                flierprops={
+                                    "marker": ".",
+                                    "markersize": 1,
+                                    "alpha": 0.6
+                                    }
+                                )
             else:
-                seaborn.boxplot(data = sub_data, ax = ax, log_scale=True)
+                seaborn.boxplot(data = sub_data, 
+                                ax = ax, 
+                                log_scale=True, 
+                                linewidth = 0.2,
+                                flierprops={
+                                    "marker": ".",
+                                    "markersize": 1,
+                                    "alpha": 0.6
+                                    }
+                                )
             ax.set_ylim(0.8, 700)
-            ax.axhline(y=1.8, color='gray', linestyle='--')
-            ax.axhline(y=3, color='gray', linestyle='--')
+            ax.axhline(y=1.8, color='gray', linestyle='--', lw = 0.3)
+            ax.axhline(y=3, color='gray', linestyle='--', lw = 0.3)
 
-            ax.set_xticklabels(sub_ticks, rotation = 45)
+            ax.set_xticklabels(sub_ticks, rotation = 15, fontsize = 3, ha = "center")
+            #ax.tick_params(axis='x', pad=-2)
             ax.set_ylabel(mode)
             if idx == len(ax_list) - 1:
                 ax.set_xlabel("index")
+            for location in ['left', 'right', 'top', 'bottom']:
+                ax.spines[location].set_linewidth(0.2)
 
-
-        plt.savefig(os.path.join(plots_dir, mode + suffix + ".png"), bbox_inches='tight')
+            if suffix != "_small": 
+                for box, label in zip(ax.patches, sub_labels):
+                    if label in done_labels:
+                        continue
+                    selected_label_dict[box] = label
+                    done_labels.append(label)
+        
+        if suffix != "_small":
+            handles = [Patch(facecolor=box.get_facecolor(), label=label) for box, label in selected_label_dict.items()]
+            ax = ax_list[0]
+            box = ax.get_position()
+            ax.legend(handles = handles, loc='upper center', ncol=5)
+        
+            fig = plt.gcf()
+            fig.set_size_inches(7.5, 8.75)
+        
+        plt.savefig(os.path.join(plots_dir, mode + suffix + ".eps"), bbox_inches='tight', dpi = 300)
         plt.clf()
 
 
@@ -108,42 +157,10 @@ def print_unrooted_percentiles():
     
 
 
-def plot_iqr(selected_indices, plots_dir, suffix = "", colors = None, labels = None):
-    modes = ["iqr", "iqr_int", "iqr_ext"]
-
-    if colors is not None:
-        palette = seaborn.color_palette("husl", max(colors) + 1)
-        colors = [palette[color] for color in colors]
-    database_df = pd.read_csv("../data/general_output/database_iqrs.tsv", sep = "\t")
-    for mode in modes:
-        df = pd.read_csv(os.path.join("../data/general_output/" + mode + ".tsv"), sep = "\t")
-        data = []
-        for index in selected_indices:
-            db_iqr = database_df[database_df["index"] == index]["iqr"].iloc[0]
-            data.append([v / db_iqr for v in df[index]])
-    
-        plt.figure(figsize=(2 * len(selected_indices), 10))
-        data = [[el for el in l if not (el is float("nan") or el is float("inf") or el is float("-inf") or el == 0)] for l in data]
-        fig, axes = plt.subplots(nrows=5, ncols = 1, figsize=(30, 50))
-        for idx, ax in enumerate(axes.flat):
-            sub_data = data[idx * 11:(idx + 1)*11]
-            if colors is not None:
-                seaborn.boxplot(data = sub_data, palette = colors[idx*11:(idx+1)*11], ax = ax, log_scale = True)
-            else:
-                seaborn.violinplot(data = sub_data, ax = ax, log_scale = True)
-            ax.set_ylim(0.000001, 1000)
-            ax.axhline(y=1, color='gray', linestyle='--')
-        
-            ax.set_xticklabels(selected_indices[idx * 11:(idx + 1) * 11], rotation = 45)
-            ax.set_ylabel(mode)
-            if idx == len(axes) - 1:
-                ax.set_xlabel("index")
- 
-        plt.savefig(os.path.join(plots_dir, mode + suffix + ".png"), bbox_inches='tight')
-        plt.clf()
-
-
 def plot_correlations(corr_mode, index_list, plots_dir):
+    matplotlib.rcParams.update({'font.size': 7})
+    cmap = matplotlib.cm.viridis
+    cmap.set_bad('white',1.)
     for corr_type in ["pearson", "spearman"]:
         df = pd.read_csv(os.path.join("../data/general_output/", corr_mode + "_correlations_" + corr_type + ".tsv"), sep = "\t")
         heatmap = []
@@ -156,17 +173,21 @@ def plot_correlations(corr_mode, index_list, plots_dir):
                     corr = df[df["index1"] == index1].iloc[0][index2]
                 heatmap[i].append(corr)
 
-        fig, ax = plt.subplots(figsize=(15, 15))
-        im = ax.imshow(heatmap)
-        fig.colorbar(im)
-        ax.set_xticks(range(len(index_list)), labels=index_list, rotation=45, ha="right", rotation_mode="anchor")
-        ax.set_yticks(range(len(index_list)), labels=index_list)
+        #fig, ax = plt.subplots(figsize=(15, 15))
+        fig, ax = plt.subplots(figsize=(7.5, 7.5))
+        im = ax.imshow(heatmap, cmap = cmap)
+        fig.colorbar(im, shrink = 0.5)
+        ax.set_xticks(range(len(index_list)), labels=index_list, rotation=45, ha="right", rotation_mode="anchor", fontsize = 5)
+        ax.set_yticks(range(len(index_list)), labels=index_list, fontsize = 5)
+        for location in ['left', 'right', 'top', 'bottom']:
+                ax.spines[location].set_linewidth(0)
         plt.tight_layout()
-        plt.savefig(os.path.join(plots_dir, corr_mode + "_heatmap_" + corr_type + ".png"))
+        plt.savefig(os.path.join(plots_dir, corr_mode + "_heatmap_" + corr_type + ".eps"), dpi = 300)
         plt.clf()
 
 
 def plot_clustermap(corr_mode, index_list, plots_dir):
+    matplotlib.rcParams.update({'font.size': 7})
     for corr_type in ["pearson", "spearman"]:
         df = pd.read_csv(os.path.join("../data/general_output/", corr_mode + "_correlations_" + corr_type + ".tsv"), sep = "\t")
         heatmap = []
@@ -194,12 +215,16 @@ def plot_clustermap(corr_mode, index_list, plots_dir):
         index_list = [ticks[permutation[i]] for i in range(len(ticks))] 
         fig, ax = plt.subplots(figsize=(15, 15))
         im = ax.imshow(heatmap)
-        fig.colorbar(im)
-        ax.set_xticks(range(len(index_list)), labels=index_list, rotation=45, ha="right", rotation_mode="anchor")
-        ax.set_yticks(range(len(index_list)), labels=index_list)
+        fig.colorbar(im, shrink = 0.5)
+        ax.set_xticks(range(len(index_list)), labels=index_list, rotation=45, ha="right", rotation_mode="anchor", fontsize = 5)
+        ax.set_yticks(range(len(index_list)), labels=index_list, fontsize = 5)
+        fig = plt.gcf()
+        fig.set_size_inches(7.5, 7.5)
+        for location in ['left', 'right', 'top', 'bottom']:
+                ax.spines[location].set_linewidth(0)
+        p = os.path.join(plots_dir, corr_mode + "_clustermap_" + corr_type + ".eps")
         plt.tight_layout()
-        p = os.path.join(plots_dir, corr_mode + "_clustermap_" + corr_type + ".png")
-        plt.savefig(p)
+        plt.savefig(p, dpi = 300)
         plt.clf()
 
 
@@ -359,17 +384,17 @@ index_types_small = {"node_indices":["colless_index"],
 
 
 
-all_indices = []
-all_indices_gaps = []
-colors = []
-labels = []
+#all_indices = []
+#all_indices_gaps = []
+#colors = []
+#labels = []
 
-for i, (index_type, indices) in enumerate(index_types_small.items()):
-    all_indices += indices
-    all_indices_gaps += indices
-    all_indices_gaps.append("")
-    colors += len(indices) * [i]
-    labels += len(indices) * [index_type]
+#for i, (index_type, indices) in enumerate(index_types_small.items()):
+#    all_indices += indices
+#    all_indices_gaps += indices
+#    all_indices_gaps.append("")
+#    colors += len(indices) * [i]
+#    labels += len(indices) * [index_type]
 
-plot_kurtosis(all_indices, plots_dir, "_small", colors, labels)
+#plot_kurtosis(all_indices, plots_dir, "_small", colors, labels)
 
