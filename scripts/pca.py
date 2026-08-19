@@ -24,63 +24,43 @@ def pca():
     #print(selected_indices)
     selected_indices = ['B_1_index', 'B_2_index', 'maxdiff_widths', 'modified_maxdiff_widths', 'cherry_index', 'average_ladder', 'I_root', 'stairs1', 'mean_I_prime', 'mean_I_w']
     X = pd.read_csv("../data/general_output/all_results_absolute.tsv", sep = "\t")
-    to_drop = [x for x in X.columns if x not in selected_indices + ["tree_size"]]
+    
+    to_drop = [x for x in X.columns if x not in selected_indices]
     for x in to_drop:
         X.drop(x, axis=1, inplace=True)
     X.replace([np.inf, -np.inf], np.nan, inplace=True)
     X.dropna(axis=0, inplace=True)
     scaler = RobustScaler()#StandardScaler()
-    X_scaled = pd.DataFrame(
-    scaler.fit_transform(X),
-    columns=X.columns,
-    index=X.index
-    )
-
-    size = X_scaled[["tree_size"]]      # DataFrame with one column
-    X_scaled.drop(columns="tree_size", inplace = True)
-    reg = LinearRegression().fit(size, X_scaled)
-    R = X_scaled - reg.predict(size)
-
-    print(type(X_scaled))
-    print(X_scaled.shape)
-    print(type(size))
-    print(size.shape)
-    print(type(R))
-    print(R.shape)
+    X_scaled = scaler.fit_transform(X)
+    #X_log = np.log1p(X)   # only if values are >= 0
+    #X_scaled = StandardScaler().fit_transform(X_log)
+    #scaler = RobustScaler()
+    #coords = PCA(n_components=5).fit_transform(X_scaled)
+    #plt.scatter(coords[:, 1], coords[:, 2])  # PC2 vs PC3
 
     pca = PCA(n_components=2)
     X_pca = pca.fit_transform(R)
     print(pca.explained_variance_)
     print(pca.explained_variance_ratio_)
     pca_df = pd.DataFrame(X_pca, columns = ["pc1", "pc2"])
-    pca_df.to_csv("../data/general_output/pca_size.tsv", sep = "\t")
+    pca_df.to_csv("../data/general_output/pca.tsv", sep = "\t")
 
 def plot_pca(color_prop):
     X_pca = pd.read_csv("../data/general_output/pca.tsv", sep = "\t")
     other_df = pd.read_csv("../data/general_output/all_results_absolute.tsv", sep = "\t").filter([color_prop], axis=1)
     X_pca = X_pca.join(other_df)
-    plt.figure(figsize=(20,20))
-    plt.scatter(X_pca["pc1"], X_pca["pc2"], s=10, c=X_pca[color_prop], norm=matplotlib.colors.LogNorm())
-    plt.colorbar()
+    plt.figure(figsize=(5.2, 5.2))
+    plt.scatter(X_pca["pc1"], X_pca["pc2"], s=0.5, c=X_pca[color_prop], norm=matplotlib.colors.LogNorm())
+    plt.colorbar(shrink = 0.5)
     plt.xlabel("Principal Component 1")
     plt.ylabel("Principal Component 2")
-    plt.savefig("../data/plots/pca_" + color_prop + ".png")
-
-def plot_indices(index1, index2):
-    df = pd.read_csv("../data/general_output/all_results_absolute.tsv", sep = "\t")
-    plt.figure(figsize=(20,20))
-    plt.scatter(df[index1], df[index2], c=df["tree_size"], s=10)
-    plt.xlabel(index1)
-    plt.ylabel(index2)
-    plt.savefig("../data/plots/" + index1 + "_" + index2 + ".png")
-
-
+    plt.savefig("../data/plots/pca_" + color_prop + ".eps", dpi = 300, bbox_inches = "tight")
 
 def correlate_with_pca(method="pearson", output_path=None):
     if method not in {"pearson", "spearman"}:
         raise ValueError('method must be "pearson" or "spearman"')
     all_results_path = "../data/general_output/all_results_absolute.tsv"
-    pca_path = "../data/general_output/pca_size.tsv"
+    pca_path = "../data/general_output/pca.tsv"
 
     all_results = pd.read_csv(all_results_path, sep="\t")
     pca_coords = pd.read_csv(pca_path, sep="\t")
@@ -134,16 +114,12 @@ def correlate_with_pca(method="pearson", output_path=None):
 
 
 
-#plot_indices("I_root", "B_1_index")
-#plot_indices("I_root", "tree_size")
-#plot_indices("maximum_width", "stairs1")
-#assert(False)
-
-color_props = ["I_root", "B_1_index"]
-pca()
+color_props = ["I_root", "tree_size"]
+#pca()
 correlate_with_pca()
 assert(False)
 for color_prop in color_props:
+    print(color_prop)
     plot_pca(color_prop)
 
 
