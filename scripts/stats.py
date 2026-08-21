@@ -191,7 +191,8 @@ def determine_unrooted_stats(base_dirs):
                 rooted_values = df[index]
                 unrooted_value = unrooted_df[index].iloc[0]
                 count_leq = sum(value <= unrooted_value for value in rooted_values)
-                unrooted_percentile = count_leq / len(rooted_values)
+                count_eq = sum(value == unrooted_value for value in rooted_values)
+                unrooted_percentile = 100 * ((count_leq - 0.5 * count_eq) / len(rooted_values))
                 table.append([index, unrooted_percentile])
             headers = ["index", "unrooted_percentile"]
             df = pd.DataFrame(table, columns=headers)
@@ -407,6 +408,7 @@ determine_database_correlations(base_dirs)
 
 determine_unrooted_stats(base_dirs)
 gather_unrooted_stats(base_dirs)
+
 modes = ["absolute", "relative_max", "relative_tips", "relative_yule"]
 for mode in modes:
     gather_results(base_dirs, mode)

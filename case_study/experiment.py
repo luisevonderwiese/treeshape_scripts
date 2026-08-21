@@ -150,7 +150,8 @@ def get_stats_lwr(df, index):
 
 def rank(value, values):
     count_leq = sum(x <= value for x in values)
-    percentile = count_leq / len(values)
+    count_eq = sum(x == value for x in values)
+    percentile = 100 * ((count_leq  - 0.5 * count_eq)/ len(values))
     return percentile
     #smaller = len([v for v in values if v < value])
     #equal = len([v for v in values if v  == value]) - 1
@@ -181,12 +182,12 @@ def ranking_table(emp_tab_path):
     res = [list(row) for _, row in df.iterrows()]
     for row in res:
         row[0] = "\codeword{" + row[0] + "}"
-        highlight  = abs(row[1] - row[2]) > 0.1
+        highlight  = abs(row[1] - row[2]) > 10
         for i in range(1, len(row)):
             if highlight and i <= 2:
-                row[i] = "$\mathbf{" + str(round(row[i], 3)) + "}$"
+                row[i] = "$\mathbf{" + str(round(row[i], 1)) + "}$"
             else:
-                row[i] = "$" + str(round(row[i], 3)) + "$"
+                row[i] = "$" + str(round(row[i], 1)) + "$"
     tab = tabulate(res, headers = df.columns, tablefmt = "latex_raw")
     print(tab)
 
