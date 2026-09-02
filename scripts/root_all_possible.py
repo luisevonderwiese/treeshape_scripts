@@ -11,6 +11,7 @@ def root_trees(base_dir):
             os.makedirs(d)
     for tree_name in os.listdir(unrooted_trees_dir):
         unrooted_tree_path = os.path.join(unrooted_trees_dir, tree_name)
+        print(unrooted_tree_path)
         tree = Tree(unrooted_tree_path)
         tree_name_x = ".".join(tree_name.split(".")[:-1])
         rooted_trees_dir = os.path.join(base_dir, "trees/rooted", tree_name_x)
@@ -38,4 +39,3 @@ def root_trees(base_dir):
 root_trees("../data/evonaps_dna")
 root_trees("../data/evonaps_aa")
 root_trees("../data/grove")
-root_trees("../data/grove_modificated")

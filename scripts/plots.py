@@ -147,12 +147,11 @@ def plot_kurtosis(selected_indices, plots_dir, suffix = "", colors = None, label
 
 def print_unrooted_percentiles():
     df = pd.read_csv(os.path.join("../data/general_output/unrooted_percentile.tsv"), sep = "\t")
-    print(df)
     res = []
     for index in INDICES_UNROOTED:
         vals = df[index]
-        res.append(["\codeword{" + index + "}", "$" + str(round(np.mean(vals), 5)) + "$", "$" + str(round(np.var(vals), 5)) + "$"])
-    tab = tabulate(res, headers = ["index", "mean", "var"], tablefmt = "latex_raw")
+        res.append(["\codeword{" + index + "}", "$" + str(round(np.mean(vals), 3)) + "$", "$" + str(round(np.std(vals), 3)) + "$"])
+    tab = tabulate(res, headers = ["index", "mean", "std"], tablefmt = "latex_raw")
     print(tab)
     
 
@@ -281,7 +280,7 @@ if not os.path.isdir(plots_dir):
     os.makedirs(plots_dir)
 
 
-base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove", "../data/grove_modificated"]
+base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove"]
 plot_tree_sizes(base_dirs, plots_dir)
 
 index_types = {"node_indices":[
@@ -382,7 +381,7 @@ index_types_small = {"node_indices":["colless_index"],
 }
 
 
-
+#extra plots for slides
 
 #all_indices = []
 #all_indices_gaps = []

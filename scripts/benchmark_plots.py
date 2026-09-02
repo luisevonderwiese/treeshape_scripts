@@ -67,7 +67,7 @@ def plot_times():
     plt.savefig(os.path.join(plots_dir, "comparing_benchmark.eps"), dpi = 300, bbox_inches = "tight")
     plt.clf()
 
-base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove", "../data/grove_modificated"]
+base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove"]
 
 gather_times(base_dirs)
 plot_times()

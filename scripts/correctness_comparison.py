@@ -67,5 +67,4 @@ def check(base_dir, reference):
 check("../data/evonaps_dna", "treestats")
 check("../data/evonaps_aa", "treestats")
 check("../data/grove", "treestats")
-check("../data/grove_modificated", "treestats")
 

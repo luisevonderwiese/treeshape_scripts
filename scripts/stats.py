@@ -101,7 +101,7 @@ def determine_max_min(base_dirs):
             df_path = os.path.join(results_dir, tree_name + "_absolute.tsv")
             if not os.path.isfile(df_path):
                 continue
-            df = pd.read_csv(df_path, sep= "\t")
+            df = pd.read_csv(df_path, sep= "\t", dtype = {"furnas_rank" : str})
             if len(df) == 0:
                 continue
             for index in INDICES:
@@ -130,7 +130,7 @@ def determine_database_variances(base_dirs):
             df_path = os.path.join(results_dir, tree_name + "_absolute.tsv")
             if not os.path.isfile(df_path):
                 continue
-            df = pd.read_csv(df_path, sep= "\t")
+            df = pd.read_csv(df_path, sep= "\t", dtype = {"furnas_rank" : str})
             if len(df) == 0:
                 continue
             for index in INDICES:
@@ -179,11 +179,11 @@ def determine_unrooted_stats(base_dirs):
             df_path = os.path.join(results_dir, tree_name + "_absolute.tsv")
             if not os.path.isfile(df_path):
                 continue
-            df = pd.read_csv(df_path, sep= "\t")
+            df = pd.read_csv(df_path, sep= "\t", dtype = {"furnas_rank" : str})
             unrooted_df_path = os.path.join(results_dir, tree_name + "_unrooted_absolute.tsv")
             if not os.path.isfile(unrooted_df_path):
                 continue
-            unrooted_df = pd.read_csv(unrooted_df_path, sep= "\t")
+            unrooted_df = pd.read_csv(unrooted_df_path, sep= "\t", dtype = {"furnas_rank" : str})
             if len(unrooted_df) == 0:
                 continue
             table = []
@@ -210,7 +210,7 @@ def determine_stats(base_dirs):
             df_path = os.path.join(results_dir, tree_name + "_absolute.tsv")
             if not os.path.isfile(df_path):
                 continue
-            df = pd.read_csv(df_path, sep= "\t")
+            df = pd.read_csv(df_path, sep= "\t", dtype = {"furnas_rank" : str})
             if len(df) == 0:
                 continue
             df_external = df[df["root_type"] == "external"]
@@ -238,7 +238,7 @@ def determine_database_correlations(base_dirs):
             df_path = os.path.join(results_dir, tree_name + "_absolute.tsv")
             if not os.path.isfile(df_path):
                 continue
-            df = pd.read_csv(df_path, sep= "\t")
+            df = pd.read_csv(df_path, sep= "\t", dtype = {"furnas_rank" : str})
             if len(df) == 0:
                 continue
             for index in INDICES:
@@ -287,7 +287,7 @@ def determine_size_correlations(base_dirs, mode):
             df_path = os.path.join(results_dir, tree_name + "_" + mode + ".tsv")
             if not os.path.isfile(df_path):
                 continue
-            df = pd.read_csv(df_path, sep= "\t")
+            df = pd.read_csv(df_path, sep= "\t", dtype = {"furnas_rank" : str})
             if len(df) == 0:
                 continue
             try:
@@ -321,7 +321,7 @@ def gather_results(base_dirs, mode):
             df_path = os.path.join(results_dir, tree_name + "_" + mode + ".tsv")
             if not os.path.isfile(df_path):
                 continue
-            df = pd.read_csv(df_path, sep= "\t")
+            df = pd.read_csv(df_path, sep= "\t", dtype = {"furnas_rank" : str})
             if len(df) == 0:
                 continue
             for i, row in df.iterrows():
@@ -392,8 +392,7 @@ def gather_unrooted_stats(base_dirs):
 
 
 
-
-base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove", "../data/grove_modificated"]
+base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove"]
 out_dir = os.path.join("../data/general_output")
 if not os.path.isdir(out_dir):
     os.makedirs(out_dir)

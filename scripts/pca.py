@@ -20,14 +20,16 @@ def pca():
     correlation_df = pd.read_csv("../data/general_output/database_correlations_spearman.tsv", sep = "\t", index_col = 0)
     correlation_df.drop('colijn_plazotta_rank', axis=1, inplace=True)
     correlation_df = correlation_df[correlation_df["index1"] != "colijn_plazotta_rank"]
-    #selected_indices = subsets.find_low_correlation_subset(correlation_df, 10)
-    #print(selected_indices)
-    selected_indices = ['B_1_index', 'B_2_index', 'maxdiff_widths', 'modified_maxdiff_widths', 'cherry_index', 'average_ladder', 'I_root', 'stairs1', 'mean_I_prime', 'mean_I_w']
+    selected_indices = subsets.find_low_correlation_subset(correlation_df, 10)
+    print(selected_indices)
+    #selected_indices = ['stairs1', 'mean_I_prime', 'mean_I_w', 'B_1_index', 'B_2_index', 'maxdiff_widths', 'modified_maxdiff_widths', 'average_ladder', 'cherry_index', 'I_root']
     X = pd.read_csv("../data/general_output/all_results_absolute.tsv", sep = "\t")
     
     to_drop = [x for x in X.columns if x not in selected_indices]
     for x in to_drop:
         X.drop(x, axis=1, inplace=True)
+    for index in selected_indices:
+        X[index] = X[index].astype("float64")
     X.replace([np.inf, -np.inf], np.nan, inplace=True)
     X.dropna(axis=0, inplace=True)
     scaler = RobustScaler()#StandardScaler()
@@ -39,7 +41,7 @@ def pca():
     #plt.scatter(coords[:, 1], coords[:, 2])  # PC2 vs PC3
 
     pca = PCA(n_components=2)
-    X_pca = pca.fit_transform(R)
+    X_pca = pca.fit_transform(X_scaled)
     print(pca.explained_variance_)
     print(pca.explained_variance_ratio_)
     pca_df = pd.DataFrame(X_pca, columns = ["pc1", "pc2"])
@@ -55,6 +57,8 @@ def plot_pca(color_prop):
     plt.xlabel("Principal Component 1")
     plt.ylabel("Principal Component 2")
     plt.savefig("../data/plots/pca_" + color_prop + ".eps", dpi = 300, bbox_inches = "tight")
+    plt.clf()
+    plt.close()
 
 def correlate_with_pca(method="pearson", output_path=None):
     if method not in {"pearson", "spearman"}:
@@ -114,10 +118,9 @@ def correlate_with_pca(method="pearson", output_path=None):
 
 
 
-color_props = ["I_root", "tree_size"]
-#pca()
+color_props = ["tree_size"]
+pca()
 correlate_with_pca()
-assert(False)
 for color_prop in color_props:
     print(color_prop)
     plot_pca(color_prop)

@@ -76,7 +76,6 @@ def evaluate_indices(params):
     if os.path.isfile(times_path) and os.path.isfile(aresults_path) and os.path.isfile(rresults_max_path) and os.path.isfile(rresults_yule_path) and os.path.isfile(rresults_tips_path):
         return
     print(tree_name)
-    return
     for results_path in [times_path, aresults_path, rresults_max_path, rresults_yule_path, rresults_tips_path]:
         header = ["root", "root_type"]
         if results_path == times_path:
@@ -119,7 +118,18 @@ def evaluate_indices(params):
         results_relative_max = ts.evaluate("all", "REL_MAX")
         results_relative_yule = ts.evaluate("all", "REL_YULE")
         results_relative_tips = ts.evaluate("all", "REL_TIPS")
-            
+        
+        for index in INDICES:
+            if not index in results_relative_max:
+                results_relative_max[index] = float("nan")
+            if not index in results_relative_yule:
+                results_relative_yule[index] = float("nan")
+            if not index in results_relative_max:
+                results_relative_yule[index] = float("nan")
+
+
+
+
         with open(times_path, "a") as outfile:
             outfile.write("\t".join([root, root_type]))
             outfile.write("\t")
@@ -185,19 +195,23 @@ def evaluate_indices_no_precomp(params):
             outfile.write("\t".join([str(time) for time in times]))
             outfile.write("\n")
 
-base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove", "../data/grove_modificated"]
-for base_dir in base_dirs:
-    print(base_dir)
-    results_dir = os.path.join(base_dir, "treeshapy")
-    if not os.path.isdir(results_dir):
-        os.makedirs(results_dir)
+def main():
+    base_dirs = ["../data/evonaps_dna", "../data/evonaps_aa", "../data/grove"]
+    for base_dir in base_dirs:
+        print(base_dir)
+        results_dir = os.path.join(base_dir, "treeshapy")
+        if not os.path.isdir(results_dir):
+            os.makedirs(results_dir)
 
-    tree_names = [(base_dir, tree_name) for tree_name in util.unrooted_tree_names(base_dir)]
-    tree_paths = [(base_dir, tree_name) for tree_name in os.listdir(os.path.join(base_dir, "trees/unrooted"))]
-    num_cpu = multiprocessing.cpu_count()
-    pool = multiprocessing.Pool(processes=num_cpu - 4)
-    pool.map(evaluate_indices, tree_names)
+        tree_names = [(base_dir, tree_name) for tree_name in util.unrooted_tree_names(base_dir)]
+        tree_paths = [(base_dir, tree_name) for tree_name in os.listdir(os.path.join(base_dir, "trees/unrooted"))]
+        num_cpu = multiprocessing.cpu_count()
+        pool = multiprocessing.Pool(processes=num_cpu)
+        pool.map(evaluate_indices, tree_names)
+        pool.map(evaluate_indices_unrooted, tree_paths)
+
         
-
+if __name__ == "__main__": 
+    main()
 
 
