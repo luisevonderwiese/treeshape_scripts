@@ -47,18 +47,21 @@ def pca():
     pca_df = pd.DataFrame(X_pca, columns = ["pc1", "pc2"])
     pca_df.to_csv("../data/general_output/pca.tsv", sep = "\t")
 
-def plot_pca(color_prop):
+def plot_pca(color_props):
     X_pca = pd.read_csv("../data/general_output/pca.tsv", sep = "\t")
-    other_df = pd.read_csv("../data/general_output/all_results_absolute.tsv", sep = "\t").filter([color_prop], axis=1)
+    other_df = pd.read_csv("../data/general_output/all_results_absolute.tsv", sep = "\t").filter(color_props, axis=1)
     X_pca = X_pca.join(other_df)
-    plt.figure(figsize=(5.2, 5.2))
-    plt.scatter(X_pca["pc1"], X_pca["pc2"], s=0.5, c=X_pca[color_prop], norm=matplotlib.colors.LogNorm())
-    plt.colorbar(shrink = 0.5)
-    plt.xlabel("Principal Component 1")
-    plt.ylabel("Principal Component 2")
-    plt.savefig("../data/plots/pca_" + color_prop + ".eps", dpi = 300, bbox_inches = "tight")
-    plt.clf()
-    plt.close()
+    for color_prop in color_props:
+        X_pca = X_pca[X_pca[color_prop].notna()]
+    for color_prop in color_props:
+        plt.figure(figsize=(5.2, 5.2))
+        plt.scatter(X_pca["pc1"], X_pca["pc2"], s=0.5, c=X_pca[color_prop], norm=matplotlib.colors.LogNorm())
+        plt.colorbar(shrink = 0.5)
+        plt.xlabel("Principal Component 1")
+        plt.ylabel("Principal Component 2")
+        plt.savefig("../data/plots/pca_" + color_prop + ".eps", dpi = 300, bbox_inches = "tight")
+        plt.clf()
+        plt.close()
 
 def correlate_with_pca(method="pearson", output_path=None):
     if method not in {"pearson", "spearman"}:
@@ -118,11 +121,8 @@ def correlate_with_pca(method="pearson", output_path=None):
 
 
 
-color_props = ["tree_size"]
 pca()
 correlate_with_pca()
-for color_prop in color_props:
-    print(color_prop)
-    plot_pca(color_prop)
+plot_pca(["I_root", "tree_size"])
 
 
